@@ -1,13 +1,11 @@
-const kyberMainnet = require('./kyber-mainnet.json');
-const uniswapMainnet = require('./uniswap-mainnet.json');
-const dydxMainnet = require('./dydx-mainnet.json');
-const tokensMainnet = require('./tokens-mainnet.json');
+const {mainnet} = require("./mainnet");
+const {kovan} = require("./kovan");
+const {ropsten} = require("./ropsten");
+
 
 module.exports = {
-  mainnet: {
-    kyber: kyberMainnet,
-    uniswap: uniswapMainnet,
-    dydx: dydxMainnet,
-    tokens: tokensMainnet
-  }
+    mainnet: mainnet,
+    kovan: kovan,
+    ropsten: ropsten,
+
 };
