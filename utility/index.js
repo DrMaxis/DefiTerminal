@@ -1,6 +1,7 @@
 
+const uniswapPriceChecker = require('./uniswap/pricechecker')
 module.exports = {
-  utils: {
-    uniswapPriceCheck
+  Utility: {
+    uniswapPriceCheck: uniswapPriceChecker
   }
 }
