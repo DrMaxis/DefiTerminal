@@ -256,7 +256,7 @@ switch (params.borrow) {
 }
 
 
-//const RECENT_ETH_PRICE = Utility.uniswapPriceCheck.priceCheck(web3, network, borrowToken.address, sellToken.address).token1Price;
+const RECENT_ETH_PRICE = fetcher.getETHPrice();
 const AMOUNT_ETH_WEI = web3.utils.toWei(borrowAmount.toString());
 const AMOUNT_DAI_WEI = web3.utils.toWei((borrowAmount * RECENT_ETH_PRICE).toString());
 

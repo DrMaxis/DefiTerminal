@@ -30,9 +30,14 @@
     "numeral": "^2.0.6",
     "pad": "^3.2.0",
     "truffle": "^5.4.14",
-    "web3": "^1.2.9"
+    "web3": "^1.2.9",
+    "websocket": "^1.0.34",
+    "ws": "^8.2.3"
   },
   "engines": {
     "node": "12.x"
+  },
+  "devDependencies": {
+    "request-promise": "^4.2.6"
   }
 }

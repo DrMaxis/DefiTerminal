@@ -12,6 +12,9 @@ async function showBanner() {
   })
 }
 
+async function showLatestMarketInformation(){
+
+}
 module.exports = {
   program: {
      init: function() {
