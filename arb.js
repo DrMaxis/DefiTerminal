@@ -2,11 +2,11 @@ require("dotenv").config()
 const Web3 = require('web3');
 const { ChainId, Token, TokenAmount, Pair } = require('@uniswap/sdk');
 const abis = require('./abis');
-const { mainnet: addresses } = require('./addresses');
+const { mainnet: addresses } = require('./program/utils/addresses');
 const Flashloan = require('./build/contracts/Flashloan.json');
 
 const web3 = new Web3(
-  new Web3.providers.WebsocketProvider(process.env.INFURA_URL)
+  new Web3.providers.WebsocketProvider(process.env.ROPSTEN_INFURA_WSS_URL)
 );
 const { address: admin } = web3.eth.accounts.wallet.add(process.env.PRIVATE_KEY);
 

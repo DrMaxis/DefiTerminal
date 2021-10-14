@@ -1,9 +1,9 @@
 const banner = require('./views/banner');
-const setupHelper = require('./lib/helpers/setup');
+const programStarter = require('./lib');
 
 async function run() {
   console.log(await showBanner());
-  setupHelper.setup();
+  programStarter.start();
 }
 
 async function showBanner() {
@@ -12,9 +12,6 @@ async function showBanner() {
   })
 }
 
-async function showLatestMarketInformation(){
-
-}
 module.exports = {
   program: {
      init: function() {

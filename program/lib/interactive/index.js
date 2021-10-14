@@ -1,5 +1,5 @@
 const inquirer = require('inquirer');
-const actionChoices = require('../interactive/actions');
+const actionChoices = require('./actions');
 const interactiveArbitrage = require('./arbitrage');
 const interactiveMarket = require('./market')
 const interactiveSwap = require('./swap')
@@ -12,13 +12,13 @@ function startInteractiveProgram() {
   inquirer
     .prompt(questions)
     .then(function (answers) {
-      if(answers.action === 'Arbitrage') {
+      if(answers.action === 'Commit Arbitrage') {
         interactiveArbitrage.init();
       }
-      if(answers.action === 'Prices') {
+      if(answers.action === 'Fetch Exchange Prices') {
         interactiveMarket.init();
       }
-      if(answers.action === 'Swap') {
+      if(answers.action === 'Swap Tokens') {
         interactiveSwap.init();
       }
     });

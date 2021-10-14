@@ -1,5 +1,5 @@
 const Flashloan = artifacts.require("Flashloan.sol");
-const { mainnet: addresses } = require('../addresses/mainnet');
+const { mainnet: addresses } = require('../program/utils/addresses/mainnet');
 
 module.exports = function(deployer, _network, [beneficiaryAddress, _]) {
   deployer.deploy(

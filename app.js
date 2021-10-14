@@ -7,7 +7,7 @@ const HDWalletProvider = require('@truffle/hdwallet-provider')
 const moment = require('moment-timezone')
 const numeral = require('numeral')
 const _ = require('lodash')
-const {mainnet, kovan, ropsten} = require('./addresses');
+const {mainnet, kovan, ropsten} = require('./program/utils/addresses');
 //const { Utility } = require('./utility')
 
 // setup network
