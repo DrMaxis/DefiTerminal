@@ -1,0 +1,10 @@
+{
+  "KYBERUNISWAP": {
+    "buy": "KYBER_TO_UNISWAP",
+    "sell": "UNISWAP_TO_KYBER"
+  },
+  "UNISWAPKYBER": {
+    "buy": "UNISWAP_TO_KYBER",
+    "sell": "KYBER_TO_UNISWAP"
+  }
+}
