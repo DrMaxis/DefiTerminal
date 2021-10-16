@@ -50,6 +50,8 @@ module.exports = {
     //  network_id: "*",       // Any network (default: none)
     // },
 
+
+
     // Another network with more advanced options...
     // advanced: {
       // port: 8777,             // Custom port
@@ -63,10 +65,25 @@ module.exports = {
     mainnet: {
       provider: () => new HDWalletProvider(
         process.env.PRIVATE_KEY, 
-        process.env.INFURA_URL
+        process.env.MAINNET_INFURA_URL
       ),
       network_id: 1,       //mainnet,
     },
+    ropsten: {
+      provider: () => new HDWalletProvider(
+        process.env.PRIVATE_KEY,
+        process.env.ROPSTEN_INFURA_URL
+      ),
+      network_id: 3,       //ropsten,
+    },
+    kovan: {
+      provider: () => new HDWalletProvider(
+        process.env.PRIVATE_KEY,
+        process.env.KOVAN_INFURA_URL
+      ),
+      network_id: 42,       //kovan,
+    }
+
 
     // Useful for private networks
     // private: {

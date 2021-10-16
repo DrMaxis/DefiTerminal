@@ -18,7 +18,7 @@ process.on('message', function(data) {
   } else{
     fetchData(data);
   }
-})
+});
 
 function fetchData(data) {
   let network, stableToken, tradingToken;

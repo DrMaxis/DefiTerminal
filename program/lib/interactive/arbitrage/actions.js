@@ -1,15 +1,56 @@
-const tokens = [
-  {name: 'WETH', description: 'Wrapped Ethereum Version 9'}
+const pairs = [
+  {
+    name: 'WETHDAI',
+    description: 'Wrapped Ethereum Version 9 Over Dai StableCoin',
+    stableToken: 'DAI',
+    tradingToken: 'WETH'
+  },
+  {
+    name: 'WETHUSDC',
+    description: 'Wrapped Ethereum Version 9 Over USD-Coin StableCoin',
+    stableToken: 'USDC',
+    tradingToken: 'WETH'
+  }
 ];
 
 const exchanges = [
-  {name: 'Uniswap', description: 'Uniswap Decentralized Exchange'},
-  {name: 'Kyber', description: 'Kyber Decentralized Exchange'}
+  {
+    name: 'Uniswap',
+    description: 'Uniswap Decentralized Exchange'
+  },
+  {
+    name: 'Kyber',
+    description: 'Kyber Decentralized Exchange'
+  }
+];
+
+const networks = [
+  {
+    name: 'Mainnet',
+    description: 'The Ethereum Main Network'
+  },
+  {
+    name: 'Kovan',
+    description: 'The Ethereum Kovan Test Network'
+  },
+  {
+    name: 'Ropsten',
+    description: 'The Ethereum Ropsten Test Network'
+  }
 ]
 
-exports.tokens = tokens.map(function(a) {
-  return a.name;
+exports.pairs = pairs.map(function(pair) {
+  return {
+    name: pair.name,
+    stableToken: pair.stableToken,
+    tradingToken: pair.tradingToken
+  };
 });
-exports.exchanges = exchanges.map(function(a) {
-  return a.name;
+
+exports.exchanges = exchanges.map(function (exchange) {
+  return exchange.name;
 });
+
+exports.networks = networks.map(function (network) {
+  return network.name;
+})

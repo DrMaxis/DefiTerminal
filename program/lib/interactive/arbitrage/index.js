@@ -2,23 +2,31 @@ const inquirer = require('inquirer');
 const colors = require('colors');
 const pad = require('pad');
 const arbitrageActions = require('./actions');
+const ArbitrageService = require('./service')
 
 function startInteractiveArbitrage() {
   const questions = [
-    { type: 'list', name: 'borrowToken', message: 'What Token Do You Want To Borrow', choices: arbitrageActions.tokens },
-    { type: 'input', name: 'borrowAmount', message: 'How much will you borrow' },
-    { type: 'list', name: 'exchange', message: 'What Exchange Will You Attack', choices: arbitrageActions.exchanges },
+    {type: 'list', name: 'pair', message: 'Target Asset Pair', choices: arbitrageActions.pairs},
+    {type: 'list', name: 'buyingExchange', message: 'Exchange You Will Buy From', choices: arbitrageActions.exchanges},
+    {type: 'list', name: 'sellingExchange', message: 'Exchange You Will Sell At', choices: arbitrageActions.exchanges},
+    {type: 'list', name: 'network', message: 'Target Network', choices: arbitrageActions.networks},
+    {type: 'input', name: 'borrowAmount', message: 'Borrow Amount'},
   ];
 
   inquirer
     .prompt(questions)
     .then(function (answers) {
-      console.log(pad(colors.grey('Borrow Token: '), 30), answers.borrowToken);
-      console.log(pad(colors.grey('Borrow Amount: '), 30), answers.borrowAmount);
-      console.log(pad(colors.grey('Exchange: '), 30), answers.exchange);
+      let data = {
+        pair: answers.pair,
+        network: answers.network,
+        buyingExchange: answers.buyingExchange,
+        sellingExchange: answers.sellingExchange,
+        borrowAmount: answers.borrowAmount
+
+      };
+      ArbitrageService.runArbitrage(data);
     });
 }
-
 
 
 exports.init = () => {
