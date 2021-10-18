@@ -1,9 +1,9 @@
 const {Command} = require('commander');
 const program = new Command();
-const swapHelper = require('../scripts/swap');
-const arbitrageHelper = require('../scripts/arbitrage');
 const interactiveProgram = require('./interactive');
 const interactiveMarketFetcher = require('./interactive/market')
+const interactiveMarket = require("./interactive/market");
+const interactiveArbitrage = require("./interactive/arbitrage");
 
 
 function startProgram() {
@@ -25,7 +25,7 @@ function startProgram() {
       .alias('pcs')
       .description('Get Latest Market Data')
       .action(function () {
-        interactiveMarketFetcher.init();
+        interactiveMarket.init();
       });
 
     // Preform Arbitrage
@@ -34,7 +34,7 @@ function startProgram() {
       .alias('a')
       .description('Preform Arbitrage')
       .action(function () {
-        arbitrageHelper.arbitrage();
+        interactiveArbitrage.init();
       });
 
     program
@@ -42,7 +42,7 @@ function startProgram() {
       .alias('swp')
       .description('Preform Swap')
       .action(function () {
-        swapHelper.swap();
+        //swapHelper.swap();
       });
 
     program.parse(process.argv);

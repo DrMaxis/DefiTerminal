@@ -10,7 +10,7 @@
 - Clone the Repo
 - Open a Node terminal & change directory to the project root
 - Run `npm install`
-- Run `npx hardhat clean`
+- Run `npx hardhat compile`
 - To start the program run `node ./`
 
 
