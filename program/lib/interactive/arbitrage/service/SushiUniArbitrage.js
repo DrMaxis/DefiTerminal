@@ -3,7 +3,7 @@ const Web3 = require('web3');
 const _ = require('lodash');
 const {mainnet, ropsten, kovan} = require('../../../../utils/addresses');
 const {Token, ChainId, Pair, TokenAmount} = require("@uniswap/sdk");
-const Flashloan = require("../../../../.././build/contracts/SushiUniFlashloan.json");
+const Flashloan = require("../../../../../artifacts/contracts/SushiUniFlashloan.sol/SushiUniFlashloan.json");
 
 
 process.on('message', function (data) {

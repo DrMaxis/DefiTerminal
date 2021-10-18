@@ -1,9 +1,7 @@
 const Web3 = require('web3');
 const { ChainId, Token, TokenAmount, Pair } = require('@uniswap/sdk');
 const { mainnet, ropsten, kovan} = require('../../addresses');
-const web3 = new Web3(
-  new Web3.providers.WebsocketProvider(process.env.MAINNET_INFURA_WSS_URL)
-);
+
 
 
 const AMOUNT_ETH = 100;
@@ -21,21 +19,24 @@ process.on('message', function(data) {
 });
 
 function fetchData(data) {
-  let network, stableToken, tradingToken;
+  let network, stableToken, tradingToken, web3;
   console.log(`Fetching Uniswap Prices For Pair: ${data.pair}...`)
   switch (data.network) {
     case 'Mainnet':
       network = ChainId.MAINNET
+      web3 = new Web3(new Web3.providers.WebsocketProvider(process.env.MAINNET_INFURA_WSS_URL));
       stableToken = mainnet.tokenPairs[data.pair].stableToken;
       tradingToken = mainnet.tokenPairs[data.pair].tradingToken;
       break;
     case 'Ropsten':
       network = ChainId.ROPSTEN
+      web3 = new Web3(new Web3.providers.WebsocketProvider(process.env.ROPSTEN_INFURA_WSS_URL));
       stableToken = ropsten.tokenPairs[data.pair].stableToken;
       tradingToken = ropsten.tokenPairs[data.pair].tradingToken;
       break;
     case 'Kovan':
       network = ChainId.KOVAN
+      web3 = new Web3(new Web3.providers.WebsocketProvider(process.env.KOVAN_INFURA_WSS_URL));
       stableToken = kovan.tokenPairs[data.pair].stableToken;
       tradingToken = kovan.tokenPairs[data.pair].tradingToken;
       break;
