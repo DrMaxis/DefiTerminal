@@ -14,7 +14,7 @@
     "@studydefi/money-legos": "^2.3.3",
     "@truffle/hdwallet-provider": "^1.5.1",
     "@uniswap/sdk": "^2.0.5",
-    "axios": "^0.19.2",
+    "axios": "^0.21.2",
     "colors": "^1.4.0",
     "commander": "^8.2.0",
     "console.table": "^0.10.0",
