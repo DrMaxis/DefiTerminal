@@ -5,7 +5,7 @@ const pad = require("pad");
 const colors = require("colors");
 
 async function fetchData(data) {
-  const process = fetchProcess.fork(__dirname+'/priceFetcher.js', [], {silent: true});
+  const process = fetchProcess.fork(__dirname+'/uniswapPriceFetcher.js', [], {silent: true});
   process.send(data)
   process.stdout.on('data', function(standardOutData) {
     console.log(standardOutData.toString());

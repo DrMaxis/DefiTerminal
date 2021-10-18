@@ -1,9 +1,11 @@
+require("dotenv").config()
+
 const fetchProcess = require('child_process');
 const pad = require("pad");
 const colors = require("colors");
 
 async function fetchData(data) {
-  const process = fetchProcess.fork(__dirname+'/kyberPriceFetcher.js', [], {silent: true});
+  const process = fetchProcess.fork(__dirname+'/sushiSwapPriceFetcher.js', [], {silent: true});
   process.send(data)
   process.stdout.on('data', function(standardOutData) {
     console.log(standardOutData.toString());
@@ -17,8 +19,8 @@ async function fetchData(data) {
   });
 
   process.on('message', function(response) {
-    console.log(pad(colors.red('Kyber WETH Buy Price:'), 30), response.rate.buy);
-    console.log(pad(colors.green('Kyber WETH Sell Price:'), 30), response.rate.sell);
+    console.log(pad(colors.red('Uniswap Price:'), 30), response.uniswapPrice);
+    console.log(pad(colors.green('Sushiswap Price:'), 30), response.sushiswapPrice);
     process.send(data = false);
   });
 

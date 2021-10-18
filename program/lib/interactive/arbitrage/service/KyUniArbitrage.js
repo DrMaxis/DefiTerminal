@@ -3,14 +3,7 @@ const Web3 = require('web3');
 const _ = require('lodash');
 const {mainnet, ropsten, kovan} = require('../../../../utils/addresses');
 const {Token, ChainId, Pair, TokenAmount} = require("@uniswap/sdk");
-const Flashloan = require("../../../../.././build/contracts/Flashloan.json");
-
-
-
-const BORROW_AMOUNT = 100;
-const RECENT_ETH_PRICE = 1;
-const AMOUNT_TRADINGTOKEN_WEI = Web3.utils.toWei(BORROW_AMOUNT.toString());
-const AMOUNT_STABLETOKEN_WEI = Web3.utils.toWei((BORROW_AMOUNT * RECENT_ETH_PRICE).toString());
+const Flashloan = require("../../../../.././build/contracts/KyUniFlashloan.json");
 
 
 process.on('message', function (data) {
@@ -24,10 +17,15 @@ process.on('message', function (data) {
 
 async function fetchData(data) {
   let network, stableToken, tradingToken, web3, kyber, flashloan, networkId, soloAddress, admin;
+  console.log(`Initiating Arbitrage of ${data.pair} between ${data.buyingExchange} & ${data.sellingExchange}`);
+  const BORROW_AMOUNT = data.borrowAmount;
+  const RECENT_ETH_PRICE = 1;
+  const AMOUNT_TRADINGTOKEN_WEI = Web3.utils.toWei(BORROW_AMOUNT.toString());
+  const AMOUNT_STABLETOKEN_WEI = Web3.utils.toWei((BORROW_AMOUNT * RECENT_ETH_PRICE).toString());
 
   const DIRECTION = {
-    BUYEX_TO_SELLEX: 0,
-    SELLEX_TO_BUYEX: 1
+    KYBER_TO_UNISWAP: 0,
+    UNISWAP_TO_KYBER: 1
   };
   switch (data.network) {
     case 'Mainnet':
@@ -36,15 +34,9 @@ async function fetchData(data) {
       tradingToken = mainnet.tokenPairs[data.pair].tradingToken;
       web3 = new Web3(new Web3.providers.WebsocketProvider(process.env.MAINNET_INFURA_WSS_URL));
       admin = web3.eth.accounts.wallet.add(process.env.PRIVATE_KEY);
-      kyber = new web3.eth.Contract(
-        mainnet.kyber.proxy.ABI,
-        mainnet.kyber.proxy.address
-      );
+      kyber = new web3.eth.Contract(mainnet.kyber.proxy.ABI, mainnet.kyber.proxy.address);
        networkId = await web3.eth.net.getId();
-       flashloan = new web3.eth.Contract(
-        Flashloan.abi,
-        Flashloan.networks[networkId].address
-      );
+       flashloan = new web3.eth.Contract(Flashloan.abi, Flashloan.networks[networkId].address);
        soloAddress = mainnet.dydx.solo.address;
       break;
     case 'Ropsten':
@@ -53,15 +45,9 @@ async function fetchData(data) {
       tradingToken = ropsten.tokenPairs[data.pair].tradingToken;
       web3 = new Web3(new Web3.providers.WebsocketProvider(process.env.ROPSTEN_INFURA_WSS_URL));
       admin = web3.eth.accounts.wallet.add(process.env.PRIVATE_KEY);
-      kyber = new web3.eth.Contract(
-        ropsten.kyber.proxy.ABI,
-        ropsten.kyber.proxy.address
-      );
+      kyber = new web3.eth.Contract(ropsten.kyber.proxy.ABI, ropsten.kyber.proxy.address);
       networkId = await web3.eth.net.getId();
-      flashloan = new web3.eth.Contract(
-        Flashloan.abi,
-        Flashloan.networks[networkId].address
-      );
+      flashloan = new web3.eth.Contract(Flashloan.abi, Flashloan.networks[networkId].address);
      //TODO: GET ROPSTEN DYDX SOLO ADDRESS
       break;
     case 'Kovan':
@@ -70,15 +56,9 @@ async function fetchData(data) {
       tradingToken = kovan.tokenPairs[data.pair].tradingToken;
       web3 = new Web3(new Web3.providers.WebsocketProvider(process.env.KOVAN_INFURA_WSS_URL));
       admin = web3.eth.accounts.wallet.add(process.env.PRIVATE_KEY);
-      kyber = new web3.eth.Contract(
-        kovan.kyber.proxy.ABI,
-        kovan.kyber.proxy.address
-      );
+      kyber = new web3.eth.Contract(kovan.kyber.proxy.ABI, kovan.kyber.proxy.address);
       networkId = await web3.eth.net.getId();
-      flashloan = new web3.eth.Contract(
-        Flashloan.abi,
-        Flashloan.networks[networkId].address
-      );
+      flashloan = new web3.eth.Contract(Flashloan.abi, Flashloan.networks[networkId].address);
       soloAddress = kovan.dydx.solo.address;
       break;
   }
@@ -95,11 +75,7 @@ async function fetchData(data) {
             tokenAddress,
           )
         )));
-      const stableTrade = await Pair.fetchData(
-        stable,
-        trade,
-      );
-
+      const stableTrade = await Pair.fetchData(stable, trade);
       const kyberResults = await Promise.all([
         kyber
           .methods

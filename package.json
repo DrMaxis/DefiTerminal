@@ -12,7 +12,7 @@
   "license": "ISC",
   "dependencies": {
     "@studydefi/money-legos": "^2.3.3",
-    "@truffle/hdwallet-provider": "^1.0.35",
+    "@truffle/hdwallet-provider": "^1.5.1",
     "@uniswap/sdk": "^2.0.5",
     "axios": "^0.19.2",
     "colors": "^1.4.0",

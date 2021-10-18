@@ -21,7 +21,11 @@ const exchanges = [
   {
     name: 'Kyber',
     description: 'Kyber Decentralized Exchange'
-  }
+  },
+  {
+    name: 'Sushiswap',
+    description: 'Sushiswap Decentralized Exchange'
+  },
 ];
 
 const networks = [
