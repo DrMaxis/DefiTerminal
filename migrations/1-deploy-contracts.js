@@ -1,13 +1,13 @@
-const Flashloan = artifacts.require("Flashloan.sol");
-const { mainnet } = require('../program/utils/addresses/mainnet');
+const sushiUni = artifacts.require("SushiUniFlashloan");
+const { kovan } = require('../program/utils/addresses/kovan');
 
 module.exports = function(deployer, _network, [beneficiaryAddress, _]) {
   deployer.deploy(
-    Flashloan,
-    mainnet.kyber.proxy.address,
-    mainnet.uniswap.router.address,
-    mainnet.tokens.weth.address,
-    mainnet.tokens.dai.address,
+    sushiUni,
+    kovan.sushiswap.router.address,
+    kovan.uniswap.router.address,
+    kovan.tokens.weth.address,
+    kovan.tokens.dai.address,
     beneficiaryAddress
   );
 };

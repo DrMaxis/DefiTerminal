@@ -23,28 +23,19 @@ function fetchData(data) {
       stableToken = mainnet.tokenPairs[data.pair].stableToken;
       tradingToken = mainnet.tokenPairs[data.pair].tradingToken;
       web3 = new Web3(new Web3.providers.WebsocketProvider(process.env.MAINNET_INFURA_WSS_URL));
-      kyber = new web3.eth.Contract(
-        mainnet.kyber.proxy.ABI,
-        mainnet.kyber.proxy.address
-      );
+      kyber = new web3.eth.Contract(mainnet.kyber.proxy.ABI, mainnet.kyber.proxy.address);
       break;
     case 'Ropsten':
       stableToken = ropsten.tokenPairs[data.pair].stableToken;
       tradingToken = ropsten.tokenPairs[data.pair].tradingToken;
       web3 = new Web3(new Web3.providers.WebsocketProvider(process.env.ROPSTEN_INFURA_WSS_URL));
-      kyber = new web3.eth.Contract(
-        ropsten.kyber.proxy.ABI,
-        ropsten.kyber.proxy.address
-      );
+      kyber = new web3.eth.Contract(ropsten.kyber.proxy.ABI, ropsten.kyber.proxy.address);
       break;
     case 'Kovan':
       stableToken = kovan.tokenPairs[data.pair].stableToken;
       tradingToken = kovan.tokenPairs[data.pair].tradingToken;
       web3 = new Web3(new Web3.providers.WebsocketProvider(process.env.KOVAN_INFURA_WSS_URL));
-      kyber = new web3.eth.Contract(
-        kovan.kyber.proxy.ABI,
-        kovan.kyber.proxy.address
-      );
+      kyber = new web3.eth.Contract(kovan.kyber.proxy.ABI, kovan.kyber.proxy.address);
       break;
   }
   web3.eth.subscribe('newBlockHeaders')

@@ -9,7 +9,7 @@ import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import './IUniswapV2Router02.sol';
 import './IWeth.sol';
 
-contract Flashloan is ICallee, DydxFlashloanBase {
+contract KyUniFlashloan is ICallee, DydxFlashloanBase {
     enum Direction { KyberToUniswap, UniswapToKyber } 
     struct ArbInfo {
         Direction direction;
