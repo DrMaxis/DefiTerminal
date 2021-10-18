@@ -32,6 +32,12 @@ function fetchData(data) {
       stableToken = kovan.tokenPairs[data.pair].stableToken;
       tradingToken = kovan.tokenPairs[data.pair].tradingToken;
       break;
+    case 'Local':
+      network = ChainId.MAINNET
+      web3 = new Web3(new Web3.providers.WebsocketProvider("https://127.0.0.1:8545"));
+      stableToken = mainnet.tokenPairs[data.pair].stableToken;
+      tradingToken = mainnet.tokenPairs[data.pair].tradingToken;
+      break;
   }
 
   const AMOUNT_ETH = 100;
@@ -40,9 +46,9 @@ function fetchData(data) {
   const AMOUNT_BASETOKEN_WEI = web3.utils.toWei((AMOUNT_ETH * RECENT_ETH_PRICE).toString());
 
   //console.log(`Subscribing to the Ethereum Block Chain @ Network: ${tokenPair.network}`);
-  web3.eth.subscribe('newBlockHeaders')
-    .on('data', async block => {
-      //console.log(`New block received. Block # ${block.number}`);
+
+  if(data.network === 'Local') {
+    (async() => {
       const [stable, trade] = await Promise.all(
         [stableToken.address, tradingToken.address].map(tokenAddress => (
           Token.fetchData(
@@ -65,9 +71,37 @@ function fetchData(data) {
         sell: parseFloat(uniswapResults[1][0].toExact() / AMOUNT_ETH),
       };
       process.send({rate: uniswapRates})
-    })
-    .on('error', error => {
-      console.log(error.toString());
-    });
+    })()
+
+  }
+  // web3.eth.subscribe('newBlockHeaders')
+  //   .on('data', async block => {
+  //     //console.log(`New block received. Block # ${block.number}`);
+  //     const [stable, trade] = await Promise.all(
+  //       [stableToken.address, tradingToken.address].map(tokenAddress => (
+  //         Token.fetchData(
+  //           network,
+  //           tokenAddress,
+  //         )
+  //       )));
+  //
+  //     const pair = await Pair.fetchData(
+  //       stable,
+  //       trade,
+  //     );
+  //
+  //     const uniswapResults = await Promise.all([
+  //       pair.getOutputAmount(new TokenAmount(stable, AMOUNT_BASETOKEN_WEI)),
+  //       pair.getOutputAmount(new TokenAmount(trade, AMOUNT_TRADINGTOKEN_WEI))
+  //     ]);
+  //     const uniswapRates = {
+  //       buy: parseFloat(AMOUNT_BASETOKEN_WEI / (uniswapResults[0][0].toExact() * 10 ** 18)),
+  //       sell: parseFloat(uniswapResults[1][0].toExact() / AMOUNT_ETH),
+  //     };
+  //     process.send({rate: uniswapRates})
+  //   })
+  //   .on('error', error => {
+  //     console.log(error.toString());
+  //   });
 
 }

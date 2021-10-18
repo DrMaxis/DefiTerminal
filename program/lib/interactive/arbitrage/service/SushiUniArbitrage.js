@@ -16,12 +16,13 @@ process.on('message', function (data) {
 
 
 async function fetchData(data) {
-  let network, stableToken, tradingToken, ethPrice, web3, flashloan, networkId, soloAddress, admin, uniswap, sushiswap, uniswapEthPrice, sushiswapEthPrice;
+  let network, stableToken, tradingToken, ethPrice, web3, flashloan, networkId, soloAddress, admin, uniswap, sushiswap,
+    uniswapEthPrice, sushiswapEthPrice;
   console.log(`Initiating Arbitrage of ${data.pair} between ${data.buyingExchange} & ${data.sellingExchange}`);
 
   switch (data.network) {
     case 'Mainnet':
-      //network = ChainId.MAINNET
+      network = ChainId.MAINNET
       stableToken = mainnet.tokenPairs[data.pair].stableToken;
       tradingToken = mainnet.tokenPairs[data.pair].tradingToken;
       web3 = new Web3(new Web3.providers.WebsocketProvider(process.env.MAINNET_INFURA_WSS_URL));
@@ -56,6 +57,18 @@ async function fetchData(data) {
       uniswap = new web3.eth.Contract(kovan.uniswap.router.ABI, kovan.uniswap.router.address);
       sushiswap = new web3.eth.Contract(kovan.sushiswap.router.ABI, kovan.sushiswap.router.address);
       break;
+    case 'Local':
+      network = ChainId.MAINNET
+      stableToken = mainnet.tokenPairs[data.pair].stableToken;
+      tradingToken = mainnet.tokenPairs[data.pair].tradingToken;
+      web3 = new Web3(new Web3.providers.WebsocketProvider("http://localhost:8545"));
+      admin = web3.eth.accounts.wallet.add(process.env.PRIVATE_KEY);
+      networkId = await web3.eth.net.getId();
+      flashloan = new web3.eth.Contract(Flashloan.abi, Flashloan.networks[networkId].address);
+      soloAddress = mainnet.dydx.solo.address;
+      uniswap = new web3.eth.Contract(mainnet.uniswap.router.ABI, mainnet.uniswap.router.address);
+      sushiswap = new web3.eth.Contract(mainnet.sushiswap.router.ABI, mainnet.sushiswap.router.address);
+      break;
   }
 
   const BORROW_AMOUNT = data.borrowAmount;
@@ -66,13 +79,13 @@ async function fetchData(data) {
   console.log('Fetching Uniswap ETH price...');
   const uniswapPrice = await uniswap.methods.getAmountsOut(web3.utils.toWei('1'), [tradingToken.address, stableToken.address]).call();
   uniswapEthPrice = web3.utils.toBN('1').mul(web3.utils.toBN(uniswapPrice[1])).div(ONE_WEI);
-  const RECENT_UNISWAP_PRICE =  uniswapEthPrice;
+  const RECENT_UNISWAP_PRICE = uniswapEthPrice;
   console.log(`Recent ETH Price on Uniswap: ${RECENT_UNISWAP_PRICE}`)
 
   console.log('Fetching Sushiswap ETH price...');
   const sushiswapPrice = await sushiswap.methods.getAmountsOut(web3.utils.toWei('1'), [tradingToken.address, stableToken.address]).call();
   sushiswapEthPrice = web3.utils.toBN('1').mul(web3.utils.toBN(sushiswapPrice[1])).div(ONE_WEI);
-  const RECENT_SUSHISWAP_PRICE =  sushiswapEthPrice;
+  const RECENT_SUSHISWAP_PRICE = sushiswapEthPrice;
   console.log(`Recent ETH Price on SushiSwap: ${RECENT_SUSHISWAP_PRICE}`)
 
   const RECENT_ETH_PRICE = RECENT_UNISWAP_PRICE.add(RECENT_SUSHISWAP_PRICE).divn(2);
@@ -104,7 +117,7 @@ async function fetchData(data) {
 
       const amountsOut1 = await sushiswap.methods.getAmountsOut(AMOUNT_STABLETOKEN_WEI, [stableToken.address, tradingToken.address]).call();
       const amountsOut2 = await uniswap.methods.getAmountsOut(amountsOut1[1], [tradingToken.address, stableToken.address]).call();
-      console.log('amounts out1' , amountsOut1, 'amounts out 2', amountsOut2);
+      console.log('amounts out1', amountsOut1, 'amounts out 2', amountsOut2);
       const amountsOut3 = await uniswap.methods.getAmountsOut(AMOUNT_STABLETOKEN_WEI, [stableToken.address, tradingToken.address]).call();
       const amountsOut4 = await sushiswap.methods.getAmountsOut(amountsOut3[1], [tradingToken.address, stableToken.address]).call();
 
@@ -120,39 +133,39 @@ async function fetchData(data) {
         borrowAmountInWei: AMOUNT_STABLETOKEN_WEI,
       })
 
-
-        const tx = flashloan.methods.initiateFlashloan(
-          soloAddress,
-          stableToken.address,
-          AMOUNT_STABLETOKEN_WEI,
-          DIRECTION.SUSHI_TO_UNISWAP
-        );
-
-
-        const [gasPrice, gasCost] = await Promise.all([
-          web3.eth.getGasPrice(),
-          tx.estimateGas({from: admin}),
-        ]);
-
-
-         const txCost = web3.utils.toBN(gasCost).mul(web3.utils.toBN(gasPrice)).mul(ethPrice);
-         const profit = daiFromUniswap.sub(AMOUNT_STABLETOKEN_WEI).sub(txCost);
-      console.log(txCost, profit);
-        //console.log('gas price', gasPrice, 'cost', gasCost);
-        // if(profit > 0) {
-        //   console.log('Arb opportunity found Sushi -> Uniswap!');
-        //   console.log(`Expected profit: ${web3.utils.fromWei(profit)} Dai`);
-        //   const data = tx.encodeABI();
-        //   const txData = {
-        //     from: admin,
-        //     to: flashloan.options.address,
-        //     data,
-        //     gas: gasCost,
-        //     gasPrice
-        //   };
-        //   const receipt = await web3.eth.sendTransaction(txData);
-        //   console.log(`Transaction hash: ${receipt.transactionHash}`);
-        // }
+      //
+      //   const tx = flashloan.methods.initiateFlashloan(
+      //     soloAddress,
+      //     stableToken.address,
+      //     AMOUNT_STABLETOKEN_WEI,
+      //     DIRECTION.SUSHI_TO_UNISWAP
+      //   );
+      //
+      //
+      //   const [gasPrice, gasCost] = await Promise.all([
+      //     web3.eth.getGasPrice(),
+      //     tx.estimateGas({from: admin}),
+      //   ]);
+      //
+      //
+      //    const txCost = web3.utils.toBN(gasCost).mul(web3.utils.toBN(gasPrice)).mul(ethPrice);
+      //    const profit = daiFromUniswap.sub(AMOUNT_STABLETOKEN_WEI).sub(txCost);
+      // console.log(txCost, profit);
+      //console.log('gas price', gasPrice, 'cost', gasCost);
+      // if(profit > 0) {
+      //   console.log('Arb opportunity found Sushi -> Uniswap!');
+      //   console.log(`Expected profit: ${web3.utils.fromWei(profit)} Dai`);
+      //   const data = tx.encodeABI();
+      //   const txData = {
+      //     from: admin,
+      //     to: flashloan.options.address,
+      //     data,
+      //     gas: gasCost,
+      //     gasPrice
+      //   };
+      //   const receipt = await web3.eth.sendTransaction(txData);
+      //   console.log(`Transaction hash: ${receipt.transactionHash}`);
+      // }
 
 
       // if(daiFromSushi.gt(AMOUNT_STABLETOKEN_WEI)) {

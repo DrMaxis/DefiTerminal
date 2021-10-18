@@ -40,6 +40,10 @@ const networks = [
   {
     name: 'Ropsten',
     description: 'The Ethereum Ropsten Test Network'
+  },
+  {
+    name: 'Local',
+    description: 'Local Test Network'
   }
 ]
 

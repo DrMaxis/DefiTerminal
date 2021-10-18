@@ -61,6 +61,17 @@ async function fetchData(data) {
       flashloan = new web3.eth.Contract(Flashloan.abi, Flashloan.networks[networkId].address);
       soloAddress = kovan.dydx.solo.address;
       break;
+    case 'Local':
+      network = ChainId.MAINNET
+      stableToken = mainnet.tokenPairs[data.pair].stableToken;
+      tradingToken = mainnet.tokenPairs[data.pair].tradingToken;
+      web3 = new Web3(new Web3.providers.WebsocketProvider("http://localhost:8545"));
+      admin = web3.eth.accounts.wallet.add(process.env.PRIVATE_KEY);
+      kyber = new web3.eth.Contract(mainnet.kyber.proxy.ABI, mainnet.kyber.proxy.address);
+      networkId = await web3.eth.net.getId();
+      flashloan = new web3.eth.Contract(Flashloan.abi, Flashloan.networks[networkId].address);
+      soloAddress = mainnet.dydx.solo.address;
+      break;
   }
 
 

@@ -37,6 +37,39 @@ function fetchData(data) {
       web3 = new Web3(new Web3.providers.WebsocketProvider(process.env.KOVAN_INFURA_WSS_URL));
       kyber = new web3.eth.Contract(kovan.kyber.proxy.ABI, kovan.kyber.proxy.address);
       break;
+    case 'Local':
+      stableToken = mainnet.tokenPairs[data.pair].stableToken;
+      tradingToken = mainnet.tokenPairs[data.pair].tradingToken;
+      web3 = new Web3(new Web3.providers.WebsocketProvider("http://localhost:8545"));
+      kyber = new web3.eth.Contract(mainnet.kyber.proxy.ABI, mainnet.kyber.proxy.address);
+  }
+
+  if(data.network === 'Local') {
+    (async() => {
+      const kyberResults = await Promise.all([
+        kyber
+          .methods
+          .getExpectedRate(
+            stableToken.address,
+            '0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee',
+            AMOUNT_STABLETOKEN_WEI
+          )
+          .call(),
+        kyber
+          .methods
+          .getExpectedRate(
+            '0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee',
+            stableToken.address,
+            AMOUNT_TRADINGTOKEN_WEI
+          )
+          .call()
+      ]);
+      const kyberRates = {
+        buy: parseFloat(1 / (kyberResults[0].expectedRate / (10 ** 18))),
+        sell: parseFloat(kyberResults[1].expectedRate / (10 ** 18))
+      };
+      process.send({rate: kyberRates})
+    })()
   }
   web3.eth.subscribe('newBlockHeaders')
     .on('data', async block => {
