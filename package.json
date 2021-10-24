@@ -12,8 +12,11 @@
   "license": "ISC",
   "dependencies": {
     "@studydefi/money-legos": "^2.3.3",
+    "@sushiswap/core": "^1.4.2",
     "@truffle/hdwallet-provider": "^1.5.1",
     "@uniswap/sdk": "^2.0.5",
+    "@uniswap/v2-core": "^1.0.1",
+    "@uniswap/v2-periphery": "^1.1.0-beta.0",
     "axios": "^0.21.2",
     "colors": "^1.4.0",
     "commander": "^8.2.0",
@@ -29,7 +32,6 @@
     "numeral": "^2.0.6",
     "pad": "^3.2.0",
     "truffle": "^5.4.14",
-    "web3": "^1.2.9",
     "websocket": "^1.0.34",
     "ws": "^8.2.3"
   },
@@ -39,7 +41,9 @@
   "devDependencies": {
     "@nomiclabs/hardhat-ethers": "^2.0.2",
     "@nomiclabs/hardhat-etherscan": "^2.1.6",
+    "@nomiclabs/hardhat-truffle5": "^2.0.2",
     "@nomiclabs/hardhat-waffle": "^2.0.1",
+    "@nomiclabs/hardhat-web3": "^2.0.0",
     "chai": "^4.3.4",
     "dotenv": "^10.0.0",
     "eslint": "^7.32.0",
@@ -57,6 +61,7 @@
     "prettier-plugin-solidity": "^1.0.0-beta.18",
     "request-promise": "^4.2.6",
     "solhint": "^3.3.6",
-    "solidity-coverage": "^0.7.17"
+    "solidity-coverage": "^0.7.17",
+    "web3": "^1.6.0"
   }
 }

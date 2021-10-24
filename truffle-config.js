@@ -1,5 +1,6 @@
 require('dotenv').config();
 const HDWalletProvider = require('@truffle/hdwallet-provider');
+const web3 = require('web3');
 /**
  * Use this file to configure your truffle project. It's seeded with some
  * common settings for different networks and features like migrations,
@@ -68,6 +69,7 @@ module.exports = {
         process.env.MAINNET_INFURA_URL
       ),
       network_id: 1,       //mainnet,
+
     },
     ropsten: {
       provider: () => new HDWalletProvider(
@@ -105,7 +107,7 @@ module.exports = {
       // docker: true,        // Use "0.5.1" you've installed locally with docker (default: false)
       // settings: {          // See the solidity docs for advice about optimization and evmVersion
       //  optimizer: {
-      //    enabled: false,
+      //    enabled: true,
       //    runs: 200
       //  },
       //  evmVersion: "byzantium"

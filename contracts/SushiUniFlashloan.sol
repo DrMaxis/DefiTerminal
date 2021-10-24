@@ -4,8 +4,8 @@ pragma experimental ABIEncoderV2;
 import "@studydefi/money-legos/dydx/contracts/DydxFlashloanBase.sol";
 import "@studydefi/money-legos/dydx/contracts/ICallee.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
-import './IUniswapV2Router02.sol';
-import './IWeth.sol';
+import "@uniswap/v2-periphery/contracts/interfaces/IWETH.sol";
+import "./IUniswapV2Router02.sol";
 
 contract SushiUniFlashloan is ICallee, DydxFlashloanBase {
     enum Direction { SushiToUniswap, UniswapToSushi}
@@ -22,7 +22,7 @@ contract SushiUniFlashloan is ICallee, DydxFlashloanBase {
 
     IUniswapV2Router02 sushi;
     IUniswapV2Router02 uniswap;
-    IWeth weth;
+    IWETH weth;
     IERC20 dai;
     address beneficiary;
 
@@ -36,7 +36,7 @@ contract SushiUniFlashloan is ICallee, DydxFlashloanBase {
     ) public {
         sushi = IUniswapV2Router02(sushiAddress);
         uniswap = IUniswapV2Router02(uniswapAddress);
-        weth = IWeth(wethAddress);
+        weth = IWETH(wethAddress);
         dai = IERC20(daiAddress);
         beneficiary = beneficiaryAddress;
     }

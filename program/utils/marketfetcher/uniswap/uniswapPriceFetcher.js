@@ -74,34 +74,34 @@ function fetchData(data) {
     })()
 
   }
-  // web3.eth.subscribe('newBlockHeaders')
-  //   .on('data', async block => {
-  //     //console.log(`New block received. Block # ${block.number}`);
-  //     const [stable, trade] = await Promise.all(
-  //       [stableToken.address, tradingToken.address].map(tokenAddress => (
-  //         Token.fetchData(
-  //           network,
-  //           tokenAddress,
-  //         )
-  //       )));
-  //
-  //     const pair = await Pair.fetchData(
-  //       stable,
-  //       trade,
-  //     );
-  //
-  //     const uniswapResults = await Promise.all([
-  //       pair.getOutputAmount(new TokenAmount(stable, AMOUNT_BASETOKEN_WEI)),
-  //       pair.getOutputAmount(new TokenAmount(trade, AMOUNT_TRADINGTOKEN_WEI))
-  //     ]);
-  //     const uniswapRates = {
-  //       buy: parseFloat(AMOUNT_BASETOKEN_WEI / (uniswapResults[0][0].toExact() * 10 ** 18)),
-  //       sell: parseFloat(uniswapResults[1][0].toExact() / AMOUNT_ETH),
-  //     };
-  //     process.send({rate: uniswapRates})
-  //   })
-  //   .on('error', error => {
-  //     console.log(error.toString());
-  //   });
+  web3.eth.subscribe('newBlockHeaders')
+    .on('data', async block => {
+      //console.log(`New block received. Block # ${block.number}`);
+      const [stable, trade] = await Promise.all(
+        [stableToken.address, tradingToken.address].map(tokenAddress => (
+          Token.fetchData(
+            network,
+            tokenAddress,
+          )
+        )));
+
+      const pair = await Pair.fetchData(
+        stable,
+        trade,
+      );
+
+      const uniswapResults = await Promise.all([
+        pair.getOutputAmount(new TokenAmount(stable, AMOUNT_BASETOKEN_WEI)),
+        pair.getOutputAmount(new TokenAmount(trade, AMOUNT_TRADINGTOKEN_WEI))
+      ]);
+      const uniswapRates = {
+        buy: parseFloat(AMOUNT_BASETOKEN_WEI / (uniswapResults[0][0].toExact() * 10 ** 18)),
+        sell: parseFloat(uniswapResults[1][0].toExact() / AMOUNT_ETH),
+      };
+      process.send({rate: uniswapRates})
+    })
+    .on('error', error => {
+      console.log(error.toString());
+    });
 
 }
