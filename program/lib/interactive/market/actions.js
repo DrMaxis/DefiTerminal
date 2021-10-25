@@ -41,6 +41,10 @@ const exchanges = [
   {
     name: 'Pancakeswap',
     description: 'Pancakeswap Decentralized Exchange'
+  },
+  {
+    name: 'Bakeryswap',
+    description: 'Bakeryswap Decentralized Exchange'
   }
 ];
 
