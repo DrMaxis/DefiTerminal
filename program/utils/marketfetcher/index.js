@@ -4,7 +4,6 @@ const BakeryswapService = require('../marketfetcher/bakeryswap');
 const CMKService = require('../marketfetcher/cmk');
 const DyDxService = require('../marketfetcher/dydx');
 const KyberService = require('../marketfetcher/kyber');
-const PancakeswapService = require('../marketfetcher/pancakeswap');
 const SushiswapService = require('../marketfetcher/sushiswap');
 const UniswapService = require('../marketfetcher/uniswap');
 

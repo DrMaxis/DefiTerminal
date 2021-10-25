@@ -36,8 +36,6 @@ function startInteractiveMarketFetcher() {
         default:
       }
     });
-
-
 }
 
 exports.init = () => {
