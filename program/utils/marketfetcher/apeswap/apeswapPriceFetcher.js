@@ -33,7 +33,6 @@ async function fetchData(data) {
   }
 
 
-  //console.log(mainnet.tokenPairs.Binance[data.pair].stableToken.name);
   console.log(`Fetching Ape Swap Prices...`)
   web3.eth.subscribe('newBlockHeaders', (error, result) => {
     if (!error) {
@@ -51,7 +50,6 @@ async function fetchData(data) {
       const shiftedExchangeAmount = await new BigNumber(exchangeAmount).shiftedBy(tradingToken.decimals);
       let tokenIn = tradingToken.address
       let tokenOut = stableToken.address;
-      // call getAmountsOut in PancakeSwap
       const rawValue = await apeswap.router.methods.getAmountsOut(shiftedExchangeAmount, [tokenIn, tokenOut]).call();
       const shiftedValue = await new BigNumber(rawValue[1]).shiftedBy(-stableToken.decimals);
 
