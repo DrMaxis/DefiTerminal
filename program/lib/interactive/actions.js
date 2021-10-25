@@ -1,8 +1,12 @@
-const actions = [
-  {name: 'Commit Arbitrage'},
-  {name: 'Swap Tokens '},
-  {name: 'Fetch Exchange Prices'},
+const chains = [
+  {
+    name: 'Ethereum'
+  },
+  {
+    name: 'Binance'
+  }
 ];
-exports.actions = actions.map(function(a) {
+
+exports.chains = chains.map(function (a) {
   return a.name;
 });

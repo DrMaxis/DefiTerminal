@@ -1,6 +1,9 @@
-const arbitrageDirections = require('./arbitrage-directions.json')
+const binanceDirections = require('./binance/binance-directions.json');
+const ethereumDirections = require('./ethereum/ethereum-directions.json');
+
 module.exports = {
  directions: {
-   arbitrage: arbitrageDirections
+   ethereum: ethereumDirections,
+   binance: binanceDirections
  }
 };
