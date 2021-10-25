@@ -26,6 +26,10 @@ function startInteractiveMarketFetcher() {
           break;
         case 'Pancakeswap':
           fetcher.fetchPancakeswapPairPrice(answers.pair);
+          break;
+        case 'Bakeryswap':
+          fetcher.fetchBakeryswapPairPrice(answers.pair);
+          break;
         default:
       }
     });

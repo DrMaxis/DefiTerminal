@@ -6,7 +6,12 @@ const UniswapService = require('../marketfetcher/uniswap');
 const KyberService = require('../marketfetcher/kyber');
 const SushiswapService = require('../marketfetcher/sushiswap');
 const PancakeswapService = require('../marketfetcher/pancakeswap');
+const BakeryswapService = require('../marketfetcher/bakeryswap')
 
+function fetchBakeryswapPairPrice(pair) {
+  let data = {pair:pair};
+  return BakeryswapService.getAssetInfo(data);
+}
 
 function fetchUniswapPairPrice(exchange, network, tokenPair) {
   let data = {exchange: exchange, network: network, pair: tokenPair};
@@ -51,6 +56,9 @@ module.exports = {
     },
     fetchPancakeswapPairPrice: function(pair) {
       return fetchPancakeswapPairPrice(pair);
+    },
+    fetchBakeryswapPairPrice: function(pair) {
+      return fetchBakeryswapPairPrice(pair);
     }
   }
 }
