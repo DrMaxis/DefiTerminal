@@ -20,8 +20,8 @@ function fetchData(data) {
   console.log(`Fetching Kyber Prices For Pair: ${data.pair}...`)
   switch (data.network) {
     case 'Mainnet':
-      stableToken = mainnet.tokenPairs[data.pair].stableToken;
-      tradingToken = mainnet.tokenPairs[data.pair].tradingToken;
+      stableToken = mainnet.tokenPairs.Ethereum[data.pair].stableToken;
+      tradingToken = mainnet.tokenPairs.Ethereum[data.pair].tradingToken;
       web3 = new Web3(new Web3.providers.WebsocketProvider(process.env.MAINNET_INFURA_WSS_URL));
       kyber = new web3.eth.Contract(mainnet.kyber.proxy.ABI, mainnet.kyber.proxy.address);
       break;
@@ -38,8 +38,8 @@ function fetchData(data) {
       kyber = new web3.eth.Contract(kovan.kyber.proxy.ABI, kovan.kyber.proxy.address);
       break;
     case 'Local':
-      stableToken = mainnet.tokenPairs[data.pair].stableToken;
-      tradingToken = mainnet.tokenPairs[data.pair].tradingToken;
+      stableToken = mainnet.tokenPairs.Ethereum[data.pair].stableToken;
+      tradingToken = mainnet.tokenPairs.Ethereum[data.pair].tradingToken;
       web3 = new Web3(new Web3.providers.WebsocketProvider("http://localhost:8545"));
       kyber = new web3.eth.Contract(mainnet.kyber.proxy.ABI, mainnet.kyber.proxy.address);
   }
