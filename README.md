@@ -1,4 +1,4 @@
-# Afria Flashloans
+# Afria Defi Terminal
 
 ## Infrastructure
 * NodeJS 12.^
