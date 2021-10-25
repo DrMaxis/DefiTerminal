@@ -4,8 +4,8 @@ pragma experimental ABIEncoderV2;
 import "@studydefi/money-legos/dydx/contracts/DydxFlashloanBase.sol";
 import "@studydefi/money-legos/dydx/contracts/ICallee.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
-import "./IUniswapV2Router02.sol";
-import "./IWeth.sol";
+import "./interfaces/5.0/IUniswapV2Router02.sol";
+import "./interfaces/5.0/IWeth.sol";
 
 contract SushiUniFlashloan is ICallee, DydxFlashloanBase {
     enum Direction { SushiToUniswap, UniswapToSushi}

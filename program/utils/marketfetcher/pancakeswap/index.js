@@ -5,7 +5,7 @@ const pad = require("pad");
 const colors = require("colors");
 
 async function fetchData(data) {
-  const process = fetchProcess.fork(__dirname+'/sushiswapPriceFetcher.js', [], {silent: true});
+  const process = fetchProcess.fork(__dirname+'/pancakeswapPriceFetcher.js', [], {silent: true});
   process.send(data)
   process.stdout.on('data', function(standardOutData) {
     console.log(standardOutData.toString());
@@ -19,8 +19,18 @@ async function fetchData(data) {
   });
 
   process.on('message', function(response) {
-    console.log(pad(colors.red('Uniswap Price:'), 30), response.uniswapPrice);
-    console.log(pad(colors.green('Sushiswap Price:'), 30), response.sushiswapPrice);
+
+
+    console.log(
+      pad(colors.red('Token In:'), 30), response.tokenIn.name,
+      pad(colors.red('Value: '), 30), response.tokenIn.value
+    );
+    console.log(
+      pad(colors.green('Token Out: '), 30), response.tokenOut.name,
+      pad(colors.green('Value Out: '), 30), response.tokenOut.value)
+    ;
+
+
     process.send(data = false);
   });
 

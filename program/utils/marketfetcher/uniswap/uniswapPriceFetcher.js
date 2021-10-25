@@ -17,8 +17,8 @@ function fetchData(data) {
     case 'Mainnet':
       network = ChainId.MAINNET
       web3 = new Web3(new Web3.providers.WebsocketProvider(process.env.MAINNET_INFURA_WSS_URL));
-      stableToken = mainnet.tokenPairs[data.pair].stableToken;
-      tradingToken = mainnet.tokenPairs[data.pair].tradingToken;
+      stableToken = mainnet.tokenPairs.Ethereum[data.pair].stableToken;
+      tradingToken = mainnet.tokenPairs.Ethereum[data.pair].tradingToken;
       break;
     case 'Ropsten':
       network = ChainId.ROPSTEN
@@ -35,8 +35,8 @@ function fetchData(data) {
     case 'Local':
       network = ChainId.MAINNET
       web3 = new Web3(new Web3.providers.WebsocketProvider("https://127.0.0.1:8545"));
-      stableToken = mainnet.tokenPairs[data.pair].stableToken;
-      tradingToken = mainnet.tokenPairs[data.pair].tradingToken;
+      stableToken = mainnet.tokenPairs.Ethereum[data.pair].stableToken;
+      tradingToken = mainnet.tokenPairs.Ethereum[data.pair].tradingToken;
       break;
   }
 

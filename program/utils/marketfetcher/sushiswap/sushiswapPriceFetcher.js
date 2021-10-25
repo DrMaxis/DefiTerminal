@@ -1,8 +1,6 @@
 const Web3 = require('web3');
 const {mainnet, ropsten, kovan} = require('../../addresses');
-const {ChainId} = require("@uniswap/sdk");
 const ONE_WEI = Web3.utils.toBN(Web3.utils.toWei('1'));
-const AMOUNT_DAI_WEI = Web3.utils.toBN(Web3.utils.toWei('1'));
 
 
 
@@ -17,13 +15,13 @@ process.on('message', function (data) {
 
 
 async function fetchData(data) {
-  let stableToken, tradingToken, uniswap, sushi, web3, uniswapResult, sushiswapResult;
+  let stableToken, tradingToken, uniswap, sushi, web3;
   console.log(`Fetching Sushiswap Prices For Pair: ${data.pair}...`)
   switch (data.network) {
     case 'Mainnet':
       web3 = new Web3(new Web3.providers.WebsocketProvider(process.env.MAINNET_INFURA_WSS_URL));
-      stableToken = mainnet.tokenPairs[data.pair].stableToken;
-      tradingToken = mainnet.tokenPairs[data.pair].tradingToken;
+      stableToken = mainnet.tokenPairs.Ethereum[data.pair].stableToken;
+      tradingToken = mainnet.tokenPairs.Ethereum[data.pair].tradingToken;
       uniswap = new web3.eth.Contract(mainnet.uniswap.router.ABI, mainnet.uniswap.router.address);
       sushi = new web3.eth.Contract(mainnet.sushiswap.router.ABI, mainnet.sushiswap.router.address);
       break;
@@ -43,8 +41,8 @@ async function fetchData(data) {
       break;
     case 'Local':
       web3 = new Web3(new Web3.providers.WebsocketProvider("https://127.0.0.1:8545"));
-      stableToken = mainnet.tokenPairs[data.pair].stableToken;
-      tradingToken = mainnet.tokenPairs[data.pair].tradingToken;
+      stableToken = mainnet.tokenPairs.Ethereum[data.pair].stableToken;
+      tradingToken = mainnet.tokenPairs.Ethereum[data.pair].tradingToken;
       uniswap = new web3.eth.Contract(mainnet.uniswap.router.ABI, mainnet.uniswap.router.address);
       sushi = new web3.eth.Contract(mainnet.sushiswap.router.ABI, mainnet.sushiswap.router.address);
       break;
