@@ -30,6 +30,9 @@ function startInteractiveMarketFetcher() {
         case 'Bakeryswap':
           fetcher.fetchBakeryswapPairPrice(answers.pair);
           break;
+        case 'Apeswap':
+          fetcher.fetchApeswapPairPrice(answers.pair);
+          break;
         default:
       }
     });

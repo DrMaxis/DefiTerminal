@@ -1,12 +1,18 @@
 require('dotenv').config();
-const _ = require('lodash');
+const ApeswapService = require('../marketfetcher/apeswap');
+const BakeryswapService = require('../marketfetcher/bakeryswap');
 const CMKService = require('../marketfetcher/cmk');
 const DyDxService = require('../marketfetcher/dydx');
-const UniswapService = require('../marketfetcher/uniswap');
 const KyberService = require('../marketfetcher/kyber');
-const SushiswapService = require('../marketfetcher/sushiswap');
 const PancakeswapService = require('../marketfetcher/pancakeswap');
-const BakeryswapService = require('../marketfetcher/bakeryswap')
+const SushiswapService = require('../marketfetcher/sushiswap');
+const UniswapService = require('../marketfetcher/uniswap');
+
+
+function fetchApeswapPairPrice(pair) {
+  let data = {pair:pair};
+  return ApeswapService.getAssetInfo(data);
+}
 
 function fetchBakeryswapPairPrice(pair) {
   let data = {pair:pair};
@@ -59,6 +65,9 @@ module.exports = {
     },
     fetchBakeryswapPairPrice: function(pair) {
       return fetchBakeryswapPairPrice(pair);
+    },
+    fetchApeswapPairPrice: function(pair) {
+      return fetchApeswapPairPrice(pair);
     }
   }
 }
