@@ -1,7 +1,5 @@
 const arbitrageProcess = require("child_process");
 
-
-
 function startBinanceArbitrage(data) {
 
   if (data.buyingExchange === data.sellingExchange) {
@@ -22,7 +20,7 @@ function startBinanceArbitrage(data) {
       if (data.sellingExchange === 'Apeswap') {
         runBakeryApeArbitrage(data);
       }
-      if (data.sellingExchange === 'Pancake') {
+      if (data.sellingExchange === 'Pancakeswap') {
         runBakeryPancakeArbitrage(data);
       }
       break;

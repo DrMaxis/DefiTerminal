@@ -1,4 +1,3 @@
-require("dotenv").config()
 const fetchProcess = require('child_process');
 
 

@@ -1,4 +1,4 @@
-require("dotenv").config()
+
 const fetchProcess = require('child_process');
 
 async function monitor(data) {
