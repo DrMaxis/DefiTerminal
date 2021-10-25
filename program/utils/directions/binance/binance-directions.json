@@ -1,0 +1,34 @@
+{
+  "Apeswap": {
+    "APESWAPBAKERYSWAP": {
+      "buy": "APESWAP_TO_BAKERYSWAP",
+      "sell": "BAKERYSWAP_TO_APESWAP"
+    },
+    "APESWAPPANCAKESWAP": {
+      "buy": "APESWAP_TO_PANCAKESWAP",
+      "sell": "PANCAKESWAP_TO_APESWAP"
+    }
+  },
+
+  "Bakeryswap": {
+    "BAKERYSWAPAPESWAP": {
+      "buy": "BAKERYSWAP_TO_APESWAP",
+      "sell": "APESWAP_TO_BAKERYSWAP"
+    },
+    "BAKERYSWAPPANCAKESWAP": {
+      "buy": "BAKERYSWAP_TO_PANCAKESWAP",
+      "sell": "PANCAKESWAP_TO_BAKERYSWAP"
+    }
+  },
+
+  "Pancakeswap": {
+    "PANCAKESWAPAPESWAP": {
+      "buy": "PANCAKESWAP_TO_APESWAP",
+      "sell": "APESWAP_TO_PANCAKESWAP"
+    },
+    "PANCAKESWAPBAKERYSWAP": {
+      "buy": "PANCAKESWAP_TO_BAKERYSWAP",
+      "sell": "BAKERYSWAP_TO_PANCAKESWAP"
+    }
+  }
+}

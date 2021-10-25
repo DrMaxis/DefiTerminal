@@ -1,0 +1,32 @@
+{
+  "Kyber" : {
+    "KYBERUNISWAP": {
+      "buy": "KYBER_TO_UNISWAP",
+      "sell": "UNISWAP_TO_KYBER"
+    },
+    "KYBERSUSHISWAP": {
+      "buy": "KYBER_TO_SUSHISWAP",
+      "sell": "SUSHISWAP_TO_KYBER"
+    }
+  },
+  "Uniswap": {
+    "UNISWAPKYBER": {
+      "buy": "UNISWAP_TO_KYBER",
+      "sell": "KYBER_TO_UNISWAP"
+    },
+    "UNISWAPSUSHISWAP": {
+      "buy": "UNISWAP_TO_SUSHISWAP",
+      "sell": "SUSHISWAP_TO_UNISWAP"
+    }
+  },
+  "Sushiswap": {
+    "SUSHISWAPUNISWAP": {
+      "buy": "SUSHISWAP_TO_UNISWAP",
+      "sell": "UNISWAP_TO_SUSHISWAP"
+    },
+    "SUSHISWAPKYBER": {
+      "buy": "SUSHISWAP_TO_KYBER",
+      "sell": "KYBER_TO_SUSHISWAP"
+    }
+  }
+}

@@ -29,7 +29,7 @@
     "inquirer": "^8.2.0",
     "lodash": "^4.17.15",
     "log4js": "^6.3.0",
-    "moment": "^2.25.3",
+    "moment": "^2.29.1",
     "moment-timezone": "^0.5.28",
     "numeral": "^2.0.6",
     "pad": "^3.2.0",

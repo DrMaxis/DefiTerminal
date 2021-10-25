@@ -1,28 +1,27 @@
 const inquirer = require('inquirer');
-const actionChoices = require('./actions');
-const interactiveArbitrage = require('./arbitrage');
-const interactiveMarket = require('./market')
-const interactiveSwap = require('./swap')
+const chainChoices = require('./actions');
+const interactiveBinanceProgram = require('./binance');
+const interactiveEthereumProgram = require('./ethereum');
+
 
 function startInteractiveProgram() {
   const questions = [
-    { type: 'list', name: 'action', message: 'What do you want to do?', choices: actionChoices.actions },
+    {type: 'list', name: 'chain', message: 'What Chain Do You Want To Work On', choices: chainChoices.chains},
   ];
+
 
   inquirer
     .prompt(questions)
     .then(function (answers) {
-      if(answers.action === 'Commit Arbitrage') {
-        interactiveArbitrage.init();
+      if (answers.chain === 'Ethereum') {
+        interactiveEthereumProgram.init();
       }
-      if(answers.action === 'Fetch Exchange Prices') {
-        interactiveMarket.init();
-      }
-      if(answers.action === 'Swap Tokens') {
-        interactiveSwap.init();
-      }
-    });
 
+      if (answers.chain === 'Binance') {
+        interactiveBinanceProgram.init();
+      }
+
+    });
 }
 
 exports.init = () => {
