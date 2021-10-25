@@ -5,6 +5,7 @@ const DyDxService = require('../marketfetcher/dydx');
 const UniswapService = require('../marketfetcher/uniswap');
 const KyberService = require('../marketfetcher/kyber');
 const SushiswapService = require('../marketfetcher/sushiswap');
+const PancakeswapService = require('../marketfetcher/pancakeswap');
 
 
 function fetchUniswapPairPrice(exchange, network, tokenPair) {
@@ -20,6 +21,11 @@ function fetchKyberPairPrice(exchange, network, tokenPair) {
 function fetchSushiswapPairPrice(exchange, network, tokenPair) {
   let data = {exchange: exchange, network: network, pair: tokenPair};
   return SushiswapService.getAssetInfo(data);
+}
+
+function fetchPancakeswapPairPrice(pair) {
+  let data = { pair: pair};
+  return PancakeswapService.getAssetInfo(data);
 }
 
 async function fetchCMKPrice(token) {
@@ -42,6 +48,9 @@ module.exports = {
     },
     fetchSushiswapPairPrice: function(exchange, network, tokenPair) {
       return fetchSushiswapPairPrice(exchange, network, tokenPair);
+    },
+    fetchPancakeswapPairPrice: function(pair) {
+      return fetchPancakeswapPairPrice(pair);
     }
   }
 }

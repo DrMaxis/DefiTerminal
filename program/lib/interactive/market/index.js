@@ -16,15 +16,16 @@ function startInteractiveMarketFetcher() {
     .then(function (answers) {
       switch (answers.exchange){
         case 'Uniswap':
-          //do fetcher
           fetcher.fetchUniswapPairPrice(answers.exchange, answers.network, answers.pair);
           break;
         case 'Kyber':
-          // do fetcher
           fetcher.fetchKyberPairPrice(answers.exchange, answers.network, answers.pair);
           break;
         case 'Sushiswap':
           fetcher.fetchSushiswapPairPrice(answers.exchange, answers.network, answers.pair);
+          break;
+        case 'Pancakeswap':
+          fetcher.fetchPancakeswapPairPrice(answers.pair);
         default:
       }
     });

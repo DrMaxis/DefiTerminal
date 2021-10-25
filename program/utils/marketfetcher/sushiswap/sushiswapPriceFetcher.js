@@ -1,8 +1,6 @@
 const Web3 = require('web3');
 const {mainnet, ropsten, kovan} = require('../../addresses');
-const {ChainId} = require("@uniswap/sdk");
 const ONE_WEI = Web3.utils.toBN(Web3.utils.toWei('1'));
-const AMOUNT_DAI_WEI = Web3.utils.toBN(Web3.utils.toWei('1'));
 
 
 
@@ -17,7 +15,7 @@ process.on('message', function (data) {
 
 
 async function fetchData(data) {
-  let stableToken, tradingToken, uniswap, sushi, web3, uniswapResult, sushiswapResult;
+  let stableToken, tradingToken, uniswap, sushi, web3;
   console.log(`Fetching Sushiswap Prices For Pair: ${data.pair}...`)
   switch (data.network) {
     case 'Mainnet':

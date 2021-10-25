@@ -10,6 +10,18 @@ const pairs = [
     description: 'Wrapped Ethereum Version 9 Over USD-Coin StableCoin',
     stableToken: 'USDC',
     tradingToken: 'WETH'
+  },
+  {
+    name: 'WBNBBUSDC',
+    description: 'Wrapped Binance Coin Over Binance Pegged USD Coin',
+    stableToken: 'BUSDC',
+    tradingToken: 'WBNB'
+  },
+  {
+    name: 'WBNBBUSD',
+    description: 'Wrapped Binance Coin Over Binance Pegged USD',
+    stableToken: 'BUSD',
+    tradingToken: 'WBNB'
   }
 ];
 
@@ -26,12 +38,16 @@ const exchanges = [
     name: 'Sushiswap',
     description: 'Sushiswap Decentralized Exchange'
   },
+  {
+    name: 'Pancakeswap',
+    description: 'Pancakeswap Decentralized Exchange'
+  }
 ];
 
 const networks = [
   {
     name: 'Mainnet',
-    description: 'The Ethereum Main Network'
+    description: 'The Main Network'
   },
   {
     name: 'Kovan',
