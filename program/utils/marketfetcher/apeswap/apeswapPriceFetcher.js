@@ -4,9 +4,9 @@ const web3 = new Web3(new Web3.providers.WebsocketProvider(process.env.MORALIAS_
 const _ = require("lodash");
 const BigNumber = require("bignumber.js");
 
-const bakeryswap = {
-  factory: new web3.eth.Contract(mainnet.bakeryswap.factory.ABI, mainnet.bakeryswap.factory.address),
-  router: new web3.eth.Contract(mainnet.bakeryswap.router.ABI, mainnet.bakeryswap.router.address),
+const apeswap = {
+  factory: new web3.eth.Contract(mainnet.apeswap.factory.ABI, mainnet.apeswap.factory.address),
+  router: new web3.eth.Contract(mainnet.apeswap.router.ABI, mainnet.apeswap.router.address),
 }
 
 const baseAmount = 1;
@@ -33,7 +33,7 @@ async function fetchData(data) {
   }
 
 
-  console.log(`Fetching Bakery Swap Prices...`)
+  console.log(`Fetching Ape Swap Prices...`)
   web3.eth.subscribe('newBlockHeaders', (error, result) => {
     if (!error) {
       return;
@@ -50,7 +50,7 @@ async function fetchData(data) {
       const shiftedExchangeAmount = await new BigNumber(exchangeAmount).shiftedBy(tradingToken.decimals);
       let tokenIn = tradingToken.address
       let tokenOut = stableToken.address;
-      const rawValue = await bakeryswap.router.methods.getAmountsOut(shiftedExchangeAmount, [tokenIn, tokenOut]).call();
+      const rawValue = await apeswap.router.methods.getAmountsOut(shiftedExchangeAmount, [tokenIn, tokenOut]).call();
       const shiftedValue = await new BigNumber(rawValue[1]).shiftedBy(-stableToken.decimals);
 
 

@@ -27,6 +27,10 @@ const pairs = [
 
 const exchanges = [
   {
+    name: 'Apeswap',
+    description: 'Apeswap Decentralized Exchange'
+  },
+  {
     name: 'Uniswap',
     description: 'Uniswap Decentralized Exchange'
   },
