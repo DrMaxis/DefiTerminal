@@ -16,7 +16,6 @@ function pancakeApeMonitor(data) {
 
   process.on('message', function (response) {
     console.log('response:', response)
-    //process.send(data = false);
   });
 
   process.on('close', function (code, data) {
@@ -40,7 +39,6 @@ function pancakeBakeryMonitor(data) {
 
   process.on('message', function (response) {
     console.log('response:', response)
-    //process.send(data = false);
   });
 
   process.on('close', function (code, data) {

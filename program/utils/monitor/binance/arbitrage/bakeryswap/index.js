@@ -16,7 +16,6 @@ function bakeryPancakeMonitor(data) {
 
   process.on('message', function (response) {
     console.log('response:', response)
-    //process.send(data = false);
   });
 
   process.on('close', function (code, data) {
@@ -40,7 +39,6 @@ function bakeryApeMonitor(data) {
 
   process.on('message', function (response) {
     console.log('response:', response)
-    //process.send(data = false);
   });
 
   process.on('close', function (code, data) {

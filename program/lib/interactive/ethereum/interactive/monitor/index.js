@@ -23,10 +23,10 @@ function startInteractiveMonitor() {
     .then(function (answers) {
       switch (answers.monitor) {
         case 'Arbitrage':
-          runIntersctiveArbitrageMonitorProgram()
+          runIntersctiveArbitrageMonitorProgram();
           break;
         case 'Prices':
-          runInteractivePriceMonitorProgram()
+          runInteractivePriceMonitorProgram();
           break;
         default:
       }

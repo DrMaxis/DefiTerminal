@@ -61,11 +61,6 @@ async function monitor(data) {
       let tokenOut = stableToken.address;
 
 
-      // The quote currency is not WBNB
-      if (typeof tokenIn === 'undefined') {
-        return;
-      }
-
       // call getAmountsOut in Apeswap
       const rawApeValue = await apeswap.router.methods.getAmountsOut(shiftedBorrowAmountBN, [tokenIn, tokenOut]).call();
       const shiftedApeValue = await new BigNumber(rawApeValue[1]).shiftedBy(-stableToken.decimals);

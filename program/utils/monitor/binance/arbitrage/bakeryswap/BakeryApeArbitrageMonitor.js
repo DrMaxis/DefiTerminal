@@ -61,10 +61,6 @@ async function monitor(data) {
       let tokenOut = stableToken.address;
 
 
-      // The quote currency is not WBNB
-      if (typeof tokenIn === 'undefined') {
-        return;
-      }
 
       // call getAmountsOut in Bakeryswap
       const rawBakeryValue = await bakeryswap.router.methods.getAmountsOut(shiftedBorrowAmountBN, [tokenIn, tokenOut]).call();

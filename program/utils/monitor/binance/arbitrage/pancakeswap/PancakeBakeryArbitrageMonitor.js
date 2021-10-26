@@ -60,10 +60,6 @@ async function monitor(data) {
       let tokenOut = stableToken.address;
 
 
-      // The quote currency is not WBNB
-      if (typeof tokenIn === 'undefined') {
-        return;
-      }
       // call getAmountsOut in Pancakeswap
       const rawPancakeValue = await pancakeswap.router.methods.getAmountsOut(shiftedBorrowAmountBN, [tokenIn, tokenOut]).call();
       const shiftedPancakeValue = await new BigNumber(rawPancakeValue[1]).shiftedBy(-stableToken.decimals);
