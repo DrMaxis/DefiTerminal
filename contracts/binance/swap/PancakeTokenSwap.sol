@@ -2,13 +2,13 @@
 
 pragma solidity >=0.6.6 <0.8.0;
 
-import './utils/Ownable.sol';
-import './utils/SafeMath.sol';
-import './interfaces/5.0/UniswapV2Library.sol';
-import './interfaces/6.0/IERC20.sol';
-import './interfaces/5.0/IUniswapV2Pair.sol';
-import './interfaces/6.0/IUniswapV2Factory.sol';
-import './interfaces/6.0/IUniswapV2Router02.sol';
+import '../../utils/Ownable.sol';
+import '../../utils/SafeMath.sol';
+import '../../interfaces/5.0/UniswapV2Library.sol';
+import '../../interfaces/6.0/IERC20.sol';
+import '../../interfaces/5.0/IUniswapV2Pair.sol';
+import '../../interfaces/5.0/IUniswapV2Factory.sol';
+import '../../interfaces/6.0/IUniswapV2Router02.sol';
 
 contract PancakeTokenSwap is Ownable {
     using SafeMath for uint;

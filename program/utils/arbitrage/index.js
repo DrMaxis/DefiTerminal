@@ -71,7 +71,7 @@ function startEthereumArbitrage(data) {
 }
 
 function runApeBakeryArbitrage(data) {
-  const process = arbitrageProcess.fork(__dirname + 'binance/ApeBakeryArbitrage.js', [], {silent: true});
+  const process = arbitrageProcess.fork(__dirname + '/binance/ApeBakeryArbitrage.js', [], {silent: true});
   process.send(data)
   process.stdout.on('data', function (standardOutData) {
     console.log(standardOutData.toString());
@@ -95,7 +95,7 @@ function runApeBakeryArbitrage(data) {
 }
 
 function runApePancakeArbitrage(data) {
-  const process = arbitrageProcess.fork(__dirname + 'binance/ApePancakeArbitrage.js', [], {silent: true});
+  const process = arbitrageProcess.fork(__dirname + '/binance/ApePancakeArbitrage.js', [], {silent: true});
   process.send(data)
   process.stdout.on('data', function (standardOutData) {
     console.log(standardOutData.toString());
@@ -119,7 +119,7 @@ function runApePancakeArbitrage(data) {
 }
 
 function runBakeryApeArbitrage(data) {
-  const process = arbitrageProcess.fork(__dirname + 'binance/BakeryApeArbitrage.js', [], {silent: true});
+  const process = arbitrageProcess.fork(__dirname + '/binance/BakeryApeArbitrage.js', [], {silent: true});
   process.send(data)
   process.stdout.on('data', function (standardOutData) {
     console.log(standardOutData.toString());
@@ -143,7 +143,7 @@ function runBakeryApeArbitrage(data) {
 }
 
 function runBakeryPancakeArbitrage(data) {
-  const process = arbitrageProcess.fork(__dirname + 'binance/BakeryPancakeArbitrage.js', [], {silent: true});
+  const process = arbitrageProcess.fork(__dirname + '/binance/BakeryPancakeArbitrage.js', [], {silent: true});
   process.send(data)
   process.stdout.on('data', function (standardOutData) {
     console.log(standardOutData.toString());
@@ -167,7 +167,7 @@ function runBakeryPancakeArbitrage(data) {
 }
 
 function runPancakeApeArbitrage(data) {
-  const process = arbitrageProcess.fork(__dirname + 'binance/PancakeApeArbitrage.js', [], {silent: true});
+  const process = arbitrageProcess.fork(__dirname + '/binance/PancakeApeArbitrage.js', [], {silent: true});
   process.send(data)
   process.stdout.on('data', function (standardOutData) {
     console.log(standardOutData.toString());
@@ -191,7 +191,7 @@ function runPancakeApeArbitrage(data) {
 }
 
 function runPancakeBakeryArbitrage(data) {
-  const process = arbitrageProcess.fork(__dirname + 'binance/PancakeBakeryArbitrage.js', [], {silent: true});
+  const process = arbitrageProcess.fork(__dirname + '/binance/PancakeBakeryArbitrage.js', [], {silent: true});
   process.send(data)
   process.stdout.on('data', function (standardOutData) {
     console.log(standardOutData.toString());
@@ -217,7 +217,7 @@ function runPancakeBakeryArbitrage(data) {
 
 function runKyUniArbitrage(data) {
 
-  const process = arbitrageProcess.fork(__dirname + 'ethereum/KyUniArbitrage.js', [], {silent: true});
+  const process = arbitrageProcess.fork(__dirname + '/ethereum/KyUniArbitrage.js', [], {silent: true});
   process.send(data)
   process.stdout.on('data', function (standardOutData) {
     console.log(standardOutData.toString());
@@ -241,7 +241,7 @@ function runKyUniArbitrage(data) {
 }
 
 function runKySushiArbitrage(data) {
-  const process = arbitrageProcess.fork(__dirname + 'ethereum/KySushiArbitrage.js', [], {silent: true});
+  const process = arbitrageProcess.fork(__dirname + '/ethereum/KySushiArbitrage.js', [], {silent: true});
   process.send(data)
   process.stdout.on('data', function (standardOutData) {
     console.log(standardOutData.toString());
@@ -265,7 +265,7 @@ function runKySushiArbitrage(data) {
 }
 
 function runSushiUniArbitrage(data) {
-  const process = arbitrageProcess.fork(__dirname + '/SushiUniArbitrage.js', [], {silent: true});
+  const process = arbitrageProcess.fork(__dirname + '/ethereum/SushiUniArbitrage.js', [], {silent: true});
   process.send(data)
   process.stdout.on('data', function (standardOutData) {
     console.log(standardOutData.toString());
@@ -289,7 +289,7 @@ function runSushiUniArbitrage(data) {
 }
 
 function runSushiKyArbitrage(data) {
-  const process = arbitrageProcess.fork(__dirname + 'ethereum/SushiKyArbitrage.js', [], {silent: true});
+  const process = arbitrageProcess.fork(__dirname + '/ethereum/SushiKyArbitrage.js', [], {silent: true});
   process.send(data)
   process.stdout.on('data', function (standardOutData) {
     console.log(standardOutData.toString());
@@ -313,7 +313,7 @@ function runSushiKyArbitrage(data) {
 }
 
 function runUniKyArbitrage(data) {
-  const process = arbitrageProcess.fork(__dirname + 'ethereum/UniKyArbitrage.js', [], {silent: true});
+  const process = arbitrageProcess.fork(__dirname + '/ethereum/UniKyArbitrage.js', [], {silent: true});
   process.send(data)
   process.stdout.on('data', function (standardOutData) {
     console.log(standardOutData.toString());
@@ -337,7 +337,7 @@ function runUniKyArbitrage(data) {
 }
 
 function runUniSushiArbitrage(data) {
-  const process = arbitrageProcess.fork(__dirname + 'ethereum/UniSushiArbitrage.js', [], {silent: true});
+  const process = arbitrageProcess.fork(__dirname + '/ethereum/UniSushiArbitrage.js', [], {silent: true});
   process.send(data)
   process.stdout.on('data', function (standardOutData) {
     console.log(standardOutData.toString());

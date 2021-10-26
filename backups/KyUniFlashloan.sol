@@ -1,12 +1,12 @@
-pragma solidity ^0.5.0;
+pragma solidity >=0.5.1 <0.8.0;
 pragma experimental ABIEncoderV2;
 
 import "@studydefi/money-legos/dydx/contracts/DydxFlashloanBase.sol";
 import "@studydefi/money-legos/dydx/contracts/ICallee.sol";
 import { KyberNetworkProxy as IKyberNetworkProxy } from '@studydefi/money-legos/kyber/contracts/KyberNetworkProxy.sol';
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
-import "./interfaces/5.0/IUniswapV2Router02.sol";
-import "./interfaces/5.0/IWeth.sol";
+import "../interfaces/5.0/IUniswapV2Router02.sol";
+import "../interfaces/5.0/IWeth.sol";
 
 contract KyUniFlashloan is ICallee, DydxFlashloanBase {
     enum Direction { KyberToUniswap, UniswapToKyber } 
@@ -145,5 +145,5 @@ contract KyUniFlashloan is ICallee, DydxFlashloanBase {
         solo.operate(accountInfos, operations);
     }
 
-    function() external payable {}
+    fallback() external payable {}
 }
