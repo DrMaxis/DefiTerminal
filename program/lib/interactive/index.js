@@ -1,8 +1,7 @@
 const inquirer = require('inquirer');
 const chainChoices = require('./actions');
-const interactiveBinanceProgram = require('./binance');
 const interactiveEthereumProgram = require('./ethereum');
-
+//
 
 function startInteractiveProgram() {
   const questions = [
@@ -18,6 +17,7 @@ function startInteractiveProgram() {
       }
 
       if (answers.chain === 'Binance') {
+        let interactiveBinanceProgram = require('./binance')
         interactiveBinanceProgram.init();
       }
 

@@ -1,3 +1,4 @@
+require("dotenv").config();
 const Web3 = require('web3');
 const {mainnet, ropsten, kovan} = require('../../../addresses');
 const AMOUNT_ETH = 100;

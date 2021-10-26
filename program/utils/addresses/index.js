@@ -7,5 +7,4 @@ module.exports = {
     mainnet: mainnet,
     kovan: kovan,
     ropsten: ropsten,
-
 };

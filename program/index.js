@@ -2,7 +2,7 @@ const banner = require('./views/banner');
 const programStarter = require('./lib');
 
 async function run() {
-  console.log(await showBanner());
+  //console.log(await showBanner());
   programStarter.start();
 }
 

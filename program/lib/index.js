@@ -22,5 +22,5 @@ function startProgram() {
 }
 
 exports.start = () => {
-  startProgram();
+  return startProgram();
 }

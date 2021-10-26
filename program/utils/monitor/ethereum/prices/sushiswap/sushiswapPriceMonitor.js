@@ -1,3 +1,4 @@
+require("dotenv").config();
 const Web3 = require('web3');
 const pad = require("pad");
 const colors = require("colors");
@@ -53,12 +54,9 @@ async function monitor(data) {
     sushiswapEthSellPrice = web3.utils.toBN('1').mul(web3.utils.toBN(sushiswapSellPrice[1])).div(ONE_WEI);
 
     console.log(pad(colors.yellow('Current I/O Values as of '), 30), moment().format('ll') + ' ' + moment().format('LTS'));
-    console.log(pad(colors.green('Sushiswap Buy Price:'), 30), sushiswapEthBuyPrice);
-    console.log(pad(colors.green('Sushiswap Sell Price:'), 30), sushiswapEthSellPrice)
-
+    console.log(pad(colors.red('Sushiswap Buy Price:'), 30), sushiswapEthBuyPrice.toString());
+    console.log(pad(colors.green('Sushiswap Sell Price:'), 30), sushiswapEthSellPrice.toString())
   }
 
-
-  console.log('Fetching prices, please wait....')
   setInterval(updateEthPrice, 5000);
 }

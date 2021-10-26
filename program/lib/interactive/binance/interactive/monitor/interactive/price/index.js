@@ -1,6 +1,6 @@
-const arbitrageActions = require("./actions");
 const inquirer = require("inquirer");
-const MonitorService = require('../../../../../../../utils/monitor')
+const arbitrageActions = require("./actions");
+const monitor = require('../../../../../../../utils/monitor')
 
 
 function startInteractivePriceMonitor() {
@@ -19,7 +19,7 @@ function startInteractivePriceMonitor() {
         exchange: answers.exchange,
       };
 
-      MonitorService.binance.prices.initPriceMonitor(data);
+      monitor.binance.prices.initPriceMonitor(data);
     });
 }
 
