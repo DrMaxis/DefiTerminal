@@ -1,3 +1,4 @@
+require("dotenv").config();
 const Web3 = require('web3');
 const {mainnet, ropsten, kovan} = require('../../../addresses');
 const ONE_WEI = Web3.utils.toBN(Web3.utils.toWei('1'));
@@ -47,6 +48,5 @@ async function fetchData(data) {
     sushiswapEthPrice = web3.utils.toBN('1').mul(web3.utils.toBN(sushiswapPrice[1])).div(ONE_WEI);
     process.send({sushiswapPrice: sushiswapEthPrice.toString()});
   }
-  console.log('Fetching prices, please wait....')
   setInterval(updateEthPrice, 5000);
 }

@@ -1,3 +1,4 @@
+require("dotenv").config();
 const Web3 = require('web3');
 const {mainnet, ropsten, kovan} = require('../../../../addresses');
 const pad = require("pad");

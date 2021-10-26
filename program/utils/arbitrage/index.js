@@ -35,7 +35,6 @@ function startBinanceArbitrage(data) {
   }
 }
 
-
 function startEthereumArbitrage(data) {
 
   if (data.buyingExchange === data.sellingExchange) {

@@ -1,6 +1,6 @@
 const arbitrageActions = require("./actions");
 const inquirer = require("inquirer");
-const MonitorService = require('../../../../../../../utils/monitor')
+const monitor = require('../../../../../../../utils/monitor')
 
 
 function startInteractivePriceMonitor() {
@@ -19,7 +19,7 @@ function startInteractivePriceMonitor() {
         exchange: answers.exchange,
       };
 
-      MonitorService.ethereum.prices.initPriceMonitor(data);
+      monitor.ethereum.prices.initPriceMonitor(data);
     });
 }
 

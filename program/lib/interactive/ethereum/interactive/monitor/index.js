@@ -1,7 +1,16 @@
 const inquirer = require('inquirer');
 const monitorActions = require('./actions');
-const interactiveArbitrageMonitorProgram = require('./interactive/arbitrage')
-const interactivePriceMonitorProgram = require('./interactive/price');
+
+
+function runIntersctiveArbitrageMonitorProgram() {
+  let interactiveArbitrageMonitorProgram = require('./interactive/arbitrage')
+  return interactiveArbitrageMonitorProgram.init();
+}
+
+function runInteractivePriceMonitorProgram() {
+  let interactivePriceMonitorProgram = require('./interactive/price');
+  interactivePriceMonitorProgram.init();
+}
 
 function startInteractiveMonitor() {
   const questions = [
@@ -14,10 +23,10 @@ function startInteractiveMonitor() {
     .then(function (answers) {
       switch (answers.monitor) {
         case 'Arbitrage':
-          interactiveArbitrageMonitorProgram.init();
+          runIntersctiveArbitrageMonitorProgram();
           break;
         case 'Prices':
-          interactivePriceMonitorProgram.init();
+          runInteractivePriceMonitorProgram();
           break;
         default:
       }

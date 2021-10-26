@@ -1,3 +1,4 @@
+require("dotenv").config();
 const Web3 = require('web3');
 const { ChainId, Token, TokenAmount, Pair } = require('@uniswap/sdk');
 const { mainnet, ropsten, kovan} = require('../../../addresses');

@@ -1,30 +1,47 @@
 const inquirer = require("inquirer");
 const actionChoices = require('./actions');
-const interactiveSwap = require('./interactive/swap');
-const interactivePrices = require('./interactive/prices');
-const interactiveMonitor = require('./interactive/monitor');
-const interactiveArbitrage = require('./interactive/arbitrage');
+
+
+function runInteractiveArbitrage() {
+  let interactiveArbitrage = require('./interactive/arbitrage');
+  interactiveArbitrage.init();
+}
+
+function runInteractivePrices() {
+  let interactivePrices = require('./interactive/prices');
+  interactivePrices.init();
+}
+
+function runInteractiveMonitor() {
+  let interactiveMonitor = require('./interactive/monitor');
+  interactiveMonitor.init();
+}
+
+function runInteractiveSwap() {
+  let interactiveSwap = require('./interactive/swap');
+  interactiveSwap.init();
+}
+
 
 function startInteractiveBinanceProgram() {
   const questions = [
     {type: 'list', name: 'action', message: 'What do you want to do?', choices: actionChoices.actions},
   ];
 
-
   inquirer
     .prompt(questions)
     .then(function (answers) {
       if (answers.action === 'Commit Arbitrage') {
-        interactiveArbitrage.init();
+        runInteractiveArbitrage();
       }
       if (answers.action === 'Fetch Exchange Prices') {
-        interactivePrices.init();
+        runInteractivePrices();
       }
       if (answers.action === 'Monitor Exchange Prices') {
-        interactiveMonitor.init();
+        runInteractiveMonitor();
       }
       if (answers.action === 'Swap Tokens') {
-        interactiveSwap.init();
+        runInteractiveSwap();
       }
     });
 
