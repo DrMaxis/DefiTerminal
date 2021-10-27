@@ -61,37 +61,35 @@ async function arbitrage(data) {
       console.log('-------------------------------------------------------------');
       console.log(`New block received. Block # ${block.number}`);
 
-      const borrowAmountBN = await new BigNumber(borrowAmount);
-      const shiftedBorrowAmountBN = await new BigNumber(borrowAmountBN).shiftedBy(tradingToken.decimals);
+      const wBNBborrowAmount =  new BigNumber(borrowAmount);
+      const shiftedWBNBBorrowAmount =  new BigNumber(wBNBborrowAmount).shiftedBy(tradingToken.decimals);
 
-
-      // get BUSD/WBNB on Pancakeswap
-      const rawPancakeBUSDValue = await pancakeswap.router.methods.getAmountsOut(shiftedBorrowAmountBN, [stableToken.address, tradingToken.address]).call();
-      const shiftedPancakeBUSDValue = await new BigNumber(rawPancakeBUSDValue[1]).shiftedBy(-stableToken.decimals);
-      const pancakeBUSDValueBN = await new BigNumber(rawPancakeBUSDValue[1]);
-
-
-      // get WBNB/BUSD on Pancakeswap
-      const rawPancakeWBNBValue = await pancakeswap.router.methods.getAmountsOut(shiftedBorrowAmountBN, [tradingToken.address, stableToken.address]).call();
-      const shiftedPancakeWBNBValue = await new BigNumber(rawPancakeWBNBValue[1]).shiftedBy(-tradingToken.decimals);
-      const pancakeWBNBValueBN = await new BigNumber(rawPancakeWBNBValue[1]);
-
-
-      // get BUSD/WBNB on Bakeryswap
-      const rawBakeryBUSDValue = await bakeryswap.router.methods.getAmountsOut(shiftedBorrowAmountBN, [stableToken.address, tradingToken.address]).call();
-      const shiftedBakeryBUSDValue = await new BigNumber(rawBakeryBUSDValue[1]).shiftedBy(-stableToken.decimals);
-      const bakeryBUSDValueBN = await new BigNumber(rawBakeryBUSDValue[1]);
-
-
-      // get WBNB/BUSD on Pancakeswap
-      const rawBakeryWBNBValue = await bakeryswap.router.methods.getAmountsOut(shiftedBorrowAmountBN, [tradingToken.address, stableToken.address]).call();
+      // get WBNB/BUSD on Bakeryswap
+      const rawBakeryWBNBValue = await bakeryswap.router.methods.getAmountsOut(shiftedWBNBBorrowAmount, [tradingToken.address, stableToken.address]).call();
       const shiftedBakeryWBNBValue = await new BigNumber(rawBakeryWBNBValue[1]).shiftedBy(-tradingToken.decimals);
       const bakeryWBNBValueBN = await new BigNumber(rawBakeryWBNBValue[1]);
 
-      let bUSDAmount = shiftedPancakeBUSDValue > shiftedBakeryBUSDValue ? bakeryBUSDValueBN : pancakeBUSDValueBN; // lowest BUSD value between the two
+      // get WBNB/BUSD on Pancakeswap
+      const rawPancakeWBNBValue = await pancakeswap.router.methods.getAmountsOut(shiftedWBNBBorrowAmount, [tradingToken.address, stableToken.address]).call();
+      const shiftedPancakeWBNBValue = await new BigNumber(rawPancakeWBNBValue[1]).shiftedBy(-tradingToken.decimals);
+      const pancakeWBNBValueBN = await new BigNumber(rawPancakeWBNBValue[1]);
 
-      let wBNBAmount = shiftedBorrowAmountBN;
+      // Set x Borrow Amount BNB / y BUSD Borrow Amount
+      const bUSDBorrowAmount = Math.round(borrowAmount * shiftedBakeryWBNBValue.toString());
+      const shiftedBUSDBorrowAmount = new BigNumber(bUSDBorrowAmount).shiftedBy(stableToken.decimals);
 
+      // get BUSD/WBNB on Bakeryswap
+      const rawBakeryBUSDValue = await bakeryswap.router.methods.getAmountsOut(shiftedBUSDBorrowAmount, [stableToken.address, tradingToken.address]).call();
+      const shiftedBakeryBUSDValue = await new BigNumber(rawBakeryBUSDValue[1]).shiftedBy(-stableToken.decimals);
+      const bakeryBUSDValueBN = await new BigNumber(rawBakeryBUSDValue[1]);
+
+      // get BUSD/WBNB on Pancakeswap
+      const rawPancakeBUSDValue = await pancakeswap.router.methods.getAmountsOut(shiftedBUSDBorrowAmount, [stableToken.address, tradingToken.address]).call();
+      const shiftedPancakeBUSDValue = await new BigNumber(rawPancakeBUSDValue[1]).shiftedBy(-stableToken.decimals);
+      const pancakeBUSDValueBN = await new BigNumber(rawPancakeBUSDValue[1]);
+
+      let bUSDAmount = shiftedBUSDBorrowAmount;
+      let wBNBAmount = shiftedWBNBBorrowAmount;
 
       const pancakeBUSDResults = {
         buy: new BigNumber(((bUSDAmount / pancakeBUSDValueBN) * wBNBAmount)).shiftedBy(-tradingToken.decimals).toString(),
@@ -134,20 +132,24 @@ async function arbitrage(data) {
       const txCost = 330000 * parseInt(gasPrice);
 
 
-      const currentBNBPrice = (parseInt(pancakeWBNBResults.buy + pancakeWBNBResults.sell)) / 2;
+      const currentBNBPrice = (Number(bakeryWBNBResults.buy) + Number(bakeryWBNBResults.sell)) / 2;
 
 
-      const pancakeToBakeryBUSDProfit = new BigNumber(wBNBAmount * new BigNumber(pancakeBUSDResults.sell - bakeryBUSDResults.buy)
-        - (new BigNumber(txCost).shiftedBy(-tradingToken.decimals) * new BigNumber(currentBNBPrice) + new BigNumber(pancakePaybackBUSDFee))).shiftedBy(-tradingToken.decimals).toString();
+      const pancakeToBakeryBUSDProfit = new BigNumber(wBNBAmount * (Number(pancakeBUSDResults.sell) - Number(bakeryBUSDResults.buy))
+        - (new BigNumber(txCost).shiftedBy(-tradingToken.decimals) * Number(currentBNBPrice) + Number(pancakePaybackBUSDFee)))
+        .shiftedBy(-tradingToken.decimals).toString();
 
-      const pancakeToBakeryWBNBProfit = new BigNumber(bUSDAmount * new BigNumber(pancakeWBNBResults.sell - bakeryWBNBResults.buy)
-        - (new BigNumber(txCost).shiftedBy(-tradingToken.decimals) * new BigNumber(currentBNBPrice) + new BigNumber(pancakePaybackWBNBFee))).shiftedBy(-stableToken.decimals).toString();
+      const pancakeToBakeryWBNBProfit = new BigNumber(bUSDAmount * (Number(pancakeWBNBResults.sell) - Number(bakeryWBNBResults.buy))
+        - (new BigNumber(txCost).shiftedBy(-tradingToken.decimals) * Number(currentBNBPrice) + Number(pancakePaybackWBNBFee)))
+        .shiftedBy(-stableToken.decimals).toString();
 
-      const bakeryToPancakeWBNBProfit = new BigNumber(wBNBAmount * new BigNumber(bakeryWBNBResults.sell - pancakeWBNBResults.buy)
-        - (new BigNumber(txCost).shiftedBy(-tradingToken.decimals) * new BigNumber(currentBNBPrice) + new BigNumber(bakeryPaybackWBNBFee))).shiftedBy(-stableToken.decimals).toString();
+      const bakeryToPancakeWBNBProfit = new BigNumber(wBNBAmount * (Number(bakeryWBNBResults.sell) - Number(pancakeWBNBResults.buy))
+        - (new BigNumber(txCost).shiftedBy(-tradingToken.decimals) * Number(currentBNBPrice) + Number(bakeryPaybackWBNBFee)))
+        .shiftedBy(-stableToken.decimals).toString();
 
-      const bakeryToPancakeBUSDProfit = new BigNumber(bUSDAmount * new BigNumber(bakeryBUSDResults.sell - pancakeBUSDResults.buy)
-        - (new BigNumber(txCost).shiftedBy(-tradingToken.decimals) * new BigNumber(currentBNBPrice) + new BigNumber(bakeryPaybackBUSDFee))).shiftedBy(-tradingToken.decimals).toString();
+      const bakeryToPancakeBUSDProfit = new BigNumber(bUSDAmount * (Number(bakeryBUSDResults.sell) - Number(pancakeBUSDResults.buy))
+        - (new BigNumber(txCost).shiftedBy(-tradingToken.decimals) * Number(currentBNBPrice) + Number(bakeryPaybackBUSDFee)))
+        .shiftedBy(-tradingToken.decimals).toString();
 
       console.log(bakeryToPancakeBUSDProfit)
 
