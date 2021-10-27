@@ -14,10 +14,11 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-pragma solidity ^0.5.0;
+pragma solidity >=0.5.0;
 
 interface IWeth {
     function deposit() external payable;
     function withdraw(uint wad) external;
+    function transfer(address to, uint value) external returns (bool);
     function balanceOf(address owner) external view returns(uint);
 }
