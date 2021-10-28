@@ -5,7 +5,7 @@
 - Clone the Repo
 - Open a Node terminal & change directory to the project root
 - Run `npm install`
-- Run `npx truffle compile`
+- Run `truffle compile`
 - Copy `.env.example` to a new `.env` file and insert your secrets
 - To start the program run `node ./`
 
