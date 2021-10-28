@@ -1,8 +1,3 @@
-# Afria Defi Terminal
-
-## Infrastructure
-* NodeJS 12.^
-
 
 # Setup
 
@@ -10,10 +5,14 @@
 - Clone the Repo
 - Open a Node terminal & change directory to the project root
 - Run `npm install`
-- Run `npx hardhat compile`
+- Run `npx truffle compile`
 - To start the program run `node ./`
 
 
+# Deployments
+
+- Modify the `1-deploy-contracts.js` to import the contract with the required params.
+- Modify the deployer function with the params needed by your contracts constructor.
 
 # Task Running
 
@@ -51,3 +50,8 @@ Then, copy the deployment address and paste it in to replace `DEPLOYED_CONTRACT_
 ```shell
 npx hardhat verify --network ropsten DEPLOYED_CONTRACT_ADDRESS "Hello!"
 ```
+# Testing
+
+- Run npx hardhat node --fork YOUR_HTTPS_PROVIDER
+- Open a new terminal and set the WebSocketProvider to consume `http://127.0.0.1/8545`
+- Run the scripts and watch the terminal with the running chain. 
