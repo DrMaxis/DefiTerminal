@@ -2,7 +2,7 @@ require('dotenv').config();
 const Web3 = require('web3');
 const BigNumber = require('bignumber.js');
 const {mainnet} = require('../../addresses')
-
+const PancakeApeFlashloan =require('../../../../build/contracts/PancakeApeArbitrage.json');
 
 process.on('message', function (data) {
   if (data === false) {
@@ -22,6 +22,8 @@ async function arbitrage(data) {
   const borrowAmount = data.borrowAmount;
   const web3 = new Web3(new Web3.providers.WebsocketProvider(process.env.MORALIAS_BSC_MAINNET_WSS_URL));
   const networkId = await web3.eth.net.getId();
+  const flashloan = new web3.eth.Contract(PancakeApeFlashloan.abi, PancakeApeFlashloan.networks[networkId].address);
+  const admin  = web3.eth.accounts.wallet.add(process.env.PRIVATE_KEY);
 
   const apeswap = {
     factory: new web3.eth.Contract(mainnet.apeswap.factory.ABI, mainnet.apeswap.factory.address),
@@ -44,7 +46,7 @@ async function arbitrage(data) {
     decimals: mainnet.tokenPairs.Binance[data.pair].tradingToken.decimals,
   }
 
-  //let flashloan = new web3.eth.Contract(ApePancakeFlashloan.abi, ApePancakeFlashloan.networks[networkId].address);
+
 
 
   web3.eth.subscribe('newBlockHeaders', (error, result) => {
@@ -63,7 +65,7 @@ async function arbitrage(data) {
 
       const shiftedWBNBBorrowAmount = web3.utils.toBN(web3.utils.toWei(borrowAmount))
 
-      console.log(shiftedWBNBBorrowAmount.toString() );
+      console.log(shiftedWBNBBorrowAmount.toString());
       // get BUSD AMOUNT
       const rawPancakeBUSDValue = await pancakeswap.router.methods
         .getAmountsOut(shiftedWBNBBorrowAmount,
@@ -207,28 +209,28 @@ async function arbitrage(data) {
         console.log(`Sell WBNB on Pancakeswap at ${pancakeWBNBResults.sell} `);
         console.log(`Expected profit: ${apeToPancakeWBNBProfit} WBNB`);
 
-        // let tx = flashloan.methods.startArbitrage(
-        //   addresses.tokens.WBNB, //token1
-        //   addresses.tokens.BUSD, //token2
-        //   amountInWBNB.toString(), //amount0
-        //   0, //amount1
-        //   addresses.apeSwap.factory, //apefactory
-        //   addresses.pancakeSwap.router, //pancakerouter
-        //   pancakePaybackBusd.toString()
-        // );
-        //
-        // const data = tx.encodeABI();
-        // const txData = {
-        //   from: admin,
-        //   to: flashloan.options.address,
-        //   data,
-        //   gas: "330000",
-        //   gasPrice: gasPrice,
-        // };
-        // const receipt = await web3.eth.sendTransaction(txData);
-        // console.log(`Transaction hash: ${receipt.transactionHash}`);
-        // console.log("Waiting a block as to not redo transaction in same block");
-        sleep(3000);
+        let tx = flashloan.methods.startArbitrage(
+          tradingToken.address, //token1
+          stableToken.address, //token2
+          wBNBAmount, //amount0
+          0, //amount1
+          mainnet.apeswap.factory.address, //apefactory
+          mainnet.pancakeswap.router.address, //pancakerouter
+          pancakePaybackBUSD
+        );
+
+        const data = tx.encodeABI();
+        const txData = {
+          from: admin.address,
+          to: flashloan.options.address,
+          data,
+          gas: "330000",
+          gasPrice: gasPrice,
+        };
+        const receipt = await web3.eth.sendTransaction(txData);
+        console.log(`Transaction hash: ${receipt.transactionHash}`);
+        console.log("Waiting a block as to not redo transaction in same block");
+        await sleep(3000);
       }
       if (pancakeToApeWBNBProfit > 0 && pancakeToApeWBNBProfit > apeToPancakeWBNBProfit) {
         console.log("Arb opportunity found!");
@@ -236,28 +238,28 @@ async function arbitrage(data) {
         console.log(`Sell WBNB from ApeSwap at ${apeWBNBResults.sell}`);
         console.log(`Expected profit: ${pancakeToApeWBNBProfit} WBNB`);
 
-        // let tx = flashloan.methods.startArbitrage(
-        //   addresses.tokens.WBNB, //token1
-        //   addresses.tokens.BUSD, //token2
-        //   amountInWBNB.toString(), //amount0
-        //   0, //amount1
-        //   addresses.pancakeSwap.factory, //pancakefactory
-        //   addresses.apeSwap.router, // aperouter
-        //   apeSwapPaybackBusd.toString()
-        // );
-        //
-        // const data = tx.encodeABI();
-        // const txData = {
-        //   from: admin,
-        //   to: flashloan.options.address,
-        //   data,
-        //   gas: "330000",
-        //   gasPrice: gasPrice,
-        // };
-        // const receipt = await web3.eth.sendTransaction(txData);
-        // console.log(`Transaction hash: ${receipt.transactionHash}`);
-        // console.log("Waiting a block as to not redo transaction in same block");
-        sleep(3000);
+        let tx = flashloan.methods.startArbitrage(
+          tradingToken.address, //token1
+          stableToken.address, //token2
+          wBNBAmount, //amount0
+          0, //amount1
+          mainnet.pancakeswap.factory.address, //pancakefactory
+          mainnet.apeswap.router.address, // aperouter
+          apePaybackBUSD.toString()
+        );
+
+        const data = tx.encodeABI();
+        const txData = {
+          from: admin.address,
+          to: flashloan.options.address,
+          data,
+          gas: "330000",
+          gasPrice: gasPrice,
+        };
+        const receipt = await web3.eth.sendTransaction(txData);
+        console.log(`Transaction hash: ${receipt.transactionHash}`);
+        console.log("Waiting a block as to not redo transaction in same block");
+        //sleep(3000);
       }
       if (apeToPancakeBUSDProfit > 0 && apeToPancakeBUSDProfit > pancakeToApeBUSDProfit) {
         console.log("Arb opportunity found!");
@@ -265,28 +267,28 @@ async function arbitrage(data) {
         console.log(`Sell BUSD on PancakeSwap at ${pancakeBUSDResults.sell} `);
         console.log(`Expected profit: ${apeToPancakeBUSDProfit} BUSD`);
 
-        // let tx = flashloan.methods.startArbitrage(
-        //   addresses.tokens.BUSD, //token1
-        //   addresses.tokens.WBNB, //token2
-        //   amountInBUSD.toString(), //amount0
-        //   0, //amount1
-        //   addresses.apeSwap.factory, //apefactory
-        //   addresses.pancakeSwap.router, //pancakerouter
-        //   pancakePaybackWbnb.toString()
-        // );
-        //
-        // const data = tx.encodeABI();
-        // const txData = {
-        //   from: admin,
-        //   to: flashloan.options.address,
-        //   data,
-        //   gas: "330000",
-        //   gasPrice: gasPrice,
-        // };
-        // const receipt = await web3.eth.sendTransaction(txData);
-        // console.log(`Transaction hash: ${receipt.transactionHash}`);
-        // console.log("Waiting a block as to not redo transaction in same block");
-        sleep(3000);
+        let tx = flashloan.methods.startArbitrage(
+          stableToken.address, //token1
+          tradingToken.address, //token2
+          bUSDAmount, //amount0
+          0, //amount1
+          mainnet.apeswap.factory.address, //apefactory
+          mainnet.pancakeswap.router.address, //pancakerouter
+          pancakePaybackWBNB.toString()
+        );
+
+        const data = tx.encodeABI();
+        const txData = {
+          from: admin.address,
+          to: flashloan.options.address,
+          data,
+          gas: "330000",
+          gasPrice: gasPrice,
+        };
+        const receipt = await web3.eth.sendTransaction(txData);
+        console.log(`Transaction hash: ${receipt.transactionHash}`);
+        console.log("Waiting a block as to not redo transaction in same block");
+        await sleep(3000);
       }
       if (pancakeToApeBUSDProfit > 0 && pancakeToApeBUSDProfit > apeToPancakeBUSDProfit) {
         console.log("Arb opportunity found!");
@@ -294,28 +296,28 @@ async function arbitrage(data) {
         console.log(`Sell BUSD on Apeswap at ${apeBUSDResults.sell} `);
         console.log(`Expected profit: ${pancakeToApeBUSDProfit} BUSD`);
 
-        // let tx = flashloan.methods.startArbitrage(
-        //   addresses.tokens.BUSD, //token1
-        //   addresses.tokens.WBNB, //token2
-        //   amountInBUSD.toString(), //amount0
-        //   0, //amount1
-        //   addresses.apeSwap.factory, //apefactory
-        //   addresses.pancakeSwap.router, //pancakerouter
-        //   apeSwapPaybackWbnb.toString()
-        // );
-        //
-        // const data = tx.encodeABI();
-        // const txData = {
-        //   from: admin,
-        //   to: flashloan.options.address,
-        //   data,
-        //   gas: "330000",
-        //   gasPrice: gasPrice,
-        // };
-        // const receipt = await web3.eth.sendTransaction(txData);
-        // console.log(`Transaction hash: ${receipt.transactionHash}`);
-        // console.log("Waiting a block as to not redo transaction in same block");
-        sleep(3000);
+        let tx = flashloan.methods.startArbitrage(
+          stableToken.address, //token1
+          tradingToken.address, //token2
+          bUSDAmount, //amount0
+          0, //amount1
+          mainnet.apeswap.factory.address, //apefactory
+          mainnet.pancakeswap.router.address, //pancakerouter
+          apePaybackWBNB
+        );
+
+        const data = tx.encodeABI();
+        const txData = {
+          from: admin.address,
+          to: flashloan.options.address,
+          data,
+          gas: "330000",
+          gasPrice: gasPrice,
+        };
+        const receipt = await web3.eth.sendTransaction(txData);
+        console.log(`Transaction hash: ${receipt.transactionHash}`);
+        console.log("Waiting a block as to not redo transaction in same block");
+       await sleep(3000);
       }
 
 
