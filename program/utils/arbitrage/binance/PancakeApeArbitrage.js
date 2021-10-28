@@ -161,6 +161,8 @@ async function arbitrage(data) {
           .toString()
       }
 
+      console.log(pancakeWBNBResults, pancakeBUSDResults)
+
 
       const apePaybackCalcBUSD = (apeWBNBResults.buy * 1000) / 996;
       const apePaybackBUSD = new BigNumber(apePaybackCalcBUSD).shiftedBy(stableToken.decimals);
@@ -259,7 +261,7 @@ async function arbitrage(data) {
         const receipt = await web3.eth.sendTransaction(txData);
         console.log(`Transaction hash: ${receipt.transactionHash}`);
         console.log("Waiting a block as to not redo transaction in same block");
-        //sleep(3000);
+        await sleep(3000);
       }
       if (apeToPancakeBUSDProfit > 0 && apeToPancakeBUSDProfit > pancakeToApeBUSDProfit) {
         console.log("Arb opportunity found!");
