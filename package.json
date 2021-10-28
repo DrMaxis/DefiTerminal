@@ -1,14 +1,19 @@
 {
-  "name": "flashloans",
+  "name": "defiterminal",
   "version": "1.0.0",
-  "description": "",
+  "description": "Commit Arbitrage, Check Market Prices, or Swap Tokens using a command-line interface powered by node js.",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "node index.js"
+    "start": "node ./"
   },
-  "keywords": [],
-  "author": "",
+  "keywords": [
+    "Decentralized",
+    "Finance",
+    "Terminal"
+  ],
+  "author": "Nathan Antwi - https://github.com/DrMaxis",
+  "homepage": "https://github.com/AfriaDev/DefiTerminal",
   "license": "ISC",
   "dependencies": {
     "@studydefi/money-legos": "^2.3.3",
