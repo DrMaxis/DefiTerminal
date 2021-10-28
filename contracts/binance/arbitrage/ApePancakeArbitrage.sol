@@ -3,7 +3,7 @@ pragma experimental ABIEncoderV2;
 
 import '../../utils/SafeMath.sol';
 import '../../interfaces/5.0/UniswapV2Library.sol';
-import '../../interfaces/6.0/IERC20.sol';
+import '../../interfaces/5.0/IERC20.sol';
 import '../../interfaces/5.0/IUniswapV2Pair.sol';
 import '../../interfaces/5.0/IUniswapV2Factory.sol';
 import '../../interfaces/6.0/IUniswapV2Router01.sol';
