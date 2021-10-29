@@ -38,11 +38,11 @@ const tokens = [
 
 ];
 
-exports.tokens = tokens.map(function(a) {
+exports.tokens = tokens.map(function(token) {
   return {
-    id: a.coinMarketCapID,
-    name: a.name,
-    slug: a.slug,
-    symbol: a.symbol
+    id: token.coinMarketCapID,
+    name: token.name,
+    slug: token.slug,
+    symbol: token.symbol
   };
 });
