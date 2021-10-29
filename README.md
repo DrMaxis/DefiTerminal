@@ -12,8 +12,8 @@
 
 # Deployments
 
-- Modify the `1-deploy-contracts.js` to import the contract with the required params.
-- Modify the deployer function with the params needed by your contracts constructor.
+- Modify the script prefixed with `1-` to specify which contract you would like to deploy.
+- Run the migration with `trufle migrate --network <network_listed_in_config> --reset`
 
 # Task Running
 
