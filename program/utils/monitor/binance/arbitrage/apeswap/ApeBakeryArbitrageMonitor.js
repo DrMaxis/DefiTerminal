@@ -84,7 +84,6 @@ async function monitor(data) {
 
       let profit = await new BigNumber(bakeryValueBN).minus(shiftedBorrowAmountBN);
       let profit2 = await new BigNumber(shiftedBakeryValue).minus(borrowAmountBN);
-      // not consider transaction cost in here
 
       console.log(`Current Profit Rate in ${tradingToken.name}: ${profit2.toString()}`);
       if (profit > 0) {

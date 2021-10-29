@@ -10,9 +10,9 @@ import '../../interfaces/5.0/IUniswapV2Pair.sol';
 import '../../interfaces/5.0/IUniswapV2Factory.sol';
 import '../../interfaces/6.0/IUniswapV2Router02.sol';
 
-contract PancakeTokenSwap is Ownable {
+contract ApeTokenSwap is Ownable {
     using SafeMath for uint;
-    address private constant pancakeRouter = 0x05fF2B0DB69458A0750badebc4f9e13aDd608C7F;
+    address private constant apeRouter = 0xcF0feBd3f17CEf5b47b0cD257aCf6025c5BFf3b7;
 
     constructor() {}
 
@@ -24,8 +24,8 @@ contract PancakeTokenSwap is Ownable {
     ) external {
         // transfer input tokens to this contract address
         IERC20(token0).transferFrom(msg.sender, address(this), amount0);
-        // approve pancakeRouter to transfer tokens from this contract
-        IERC20(token0).approve(pancakeRouter, amount0);
+        // approve apeRouter to transfer tokens from this contract
+        IERC20(token0).approve(apeRouter, amount0);
 
         address[] memory path;
 
@@ -35,7 +35,7 @@ contract PancakeTokenSwap is Ownable {
         path[0] = token0;
         path[1] = token1;
 
-        IUniswapV2Router02(pancakeRouter).swapExactTokensForTokens(
+        IUniswapV2Router02(apeRouter).swapExactTokensForTokens(
             amount0,
             amount1,
             path,
