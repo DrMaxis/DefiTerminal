@@ -1,12 +1,12 @@
 require('dotenv').config();
 
-const {mainnet} = require('../program/utils/addresses')
-const ApeBakeryArbitrage = require('../build/contracts/ApeBakeryArbitrage.json');
-const ApePancakeArbitrage = require('../build/contracts/ApePancakeArbitrage.json');
-const BakeryApeArbitrage = require('../build/contracts/BakeryApeArbitrage.json');
-const BakeryPancakeArbitrage = require('../build/contracts/BakeryPancakeArbitrage.json');
-const PancakeApeArbitrage = require('../build/contracts/PancakeApeArbitrage.json');
-const PancakeBakeryArbitrage = require('../build/contracts/PancakeBakeryArbitrage.json');
+const {mainnet} = require('../../../program/utils/addresses')
+const ApeBakeryArbitrage = require('../../../build/contracts/ApeBakeryArbitrage.json');
+const ApePancakeArbitrage = require('../../../build/contracts/ApePancakeArbitrage.json');
+const BakeryApeArbitrage = require('../../../build/contracts/BakeryApeArbitrage.json');
+const BakeryPancakeArbitrage = require('../../../build/contracts/BakeryPancakeArbitrage.json');
+const PancakeApeArbitrage = require('../../../build/contracts/PancakeApeArbitrage.json');
+const PancakeBakeryArbitrage = require('../../../build/contracts/PancakeBakeryArbitrage.json');
 
 
 module.exports = function (deployer) {
