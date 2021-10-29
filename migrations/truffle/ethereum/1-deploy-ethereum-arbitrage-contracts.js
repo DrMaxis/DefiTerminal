@@ -1,6 +1,6 @@
 require('dotenv').config();
 
-const {mainnet} = require('../../../../program/utils/addresses')
+const {mainnet} = require('../../../program/utils/addresses')
 const KySushiArbitrage = require('../build/contracts/KySushiArbitrage.json');
 const KyUniArbitrage = require('../build/contracts/KyUniArbitrage.json');
 const SushiKyArbitrage = require('../build/contracts/SushiKyArbitrage.json');
@@ -17,14 +17,14 @@ module.exports = function (deployer) {
   // and run the migration one at a time.
 
 
-  deployer.deploy(
-    KySushiArbitrage,
-    mainnet.kyber.proxy.address, // kyber proxy
-    mainnet.sushiswap.router.address, // sushi router
-    mainnet.tokens.Ethereum.weth.address, // WETH
-    mainnet.tokens.Ethereum.dai, // dai
-    process.env.ACCOUNT,
-  );
+  // deployer.deploy(
+  //   KySushiArbitrage,
+  //   mainnet.kyber.proxy.address, // kyber proxy
+  //   mainnet.sushiswap.router.address, // sushi router
+  //   mainnet.tokens.Ethereum.weth.address, // WETH
+  //   mainnet.tokens.Ethereum.dai, // dai
+  //   process.env.ACCOUNT,
+  // );
 
 
   // deployer.deploy(
