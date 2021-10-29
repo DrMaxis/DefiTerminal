@@ -13,7 +13,7 @@
 # Deployments
 
 - Modify the script prefixed with `1-` to specify which contract you would like to deploy.
-- Run the migration with `trufle migrate --network <network_listed_in_config> --reset`
+- Run the migration with `truffle migrate --network <network_listed_in_config> --reset`
 
 # Testing
 
