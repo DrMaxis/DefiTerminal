@@ -2,6 +2,9 @@ require('dotenv').config();
 const Web3 = require('web3');
 const BigNumber = require('bignumber.js');
 const {mainnet} = require('../../addresses')
+const pad = require("pad");
+const colors = require("colors");
+const moment = require("moment");
 
 
 process.on('message', function (data) {
@@ -63,7 +66,6 @@ async function arbitrage(data) {
 
       const shiftedWBNBBorrowAmount = web3.utils.toBN(web3.utils.toWei(borrowAmount))
 
-      console.log(shiftedWBNBBorrowAmount.toString() );
       // get BUSD AMOUNT
       const rawBakeryBUSDValue = await bakeryswap.router.methods
         .getAmountsOut(shiftedWBNBBorrowAmount,
@@ -203,6 +205,8 @@ async function arbitrage(data) {
 
       if (apeToBakeryWBNBProfit > 0 && apeToBakeryWBNBProfit > bakeryToApeWBNBProfit) {
         console.log("Arb opportunity found!");
+        console.log(pad(colors.yellow('Current Time:'), 30),
+          moment().format('ll') + ' ' + moment().format('LTS'));
         console.log(`Flashloan WBNB on Apeswap at ${apeWBNBResults.buy} `);
         console.log(`Sell WBNB on Bakeryswap at ${bakeryWBNBResults.sell} `);
         console.log(`Expected profit: ${apeToBakeryWBNBProfit} WBNB`);
@@ -232,6 +236,8 @@ async function arbitrage(data) {
       }
       if (bakeryToApeWBNBProfit > 0 && bakeryToApeWBNBProfit > apeToBakeryWBNBProfit) {
         console.log("Arb opportunity found!");
+        console.log(pad(colors.yellow('Current Time:'), 30),
+          moment().format('ll') + ' ' + moment().format('LTS'));
         console.log(`Buy WBNB from Bakeryswap at ${bakeryWBNBResults.buy} `);
         console.log(`Sell WBNB from ApeSwap at ${apeWBNBResults.sell}`);
         console.log(`Expected profit: ${bakeryToApeWBNBProfit} WBNB`);
@@ -261,6 +267,8 @@ async function arbitrage(data) {
       }
       if (apeToBakeryBUSDProfit > 0 && apeToBakeryBUSDProfit > bakeryToApeBUSDProfit) {
         console.log("Arb opportunity found!");
+        console.log(pad(colors.yellow('Current Time:'), 30),
+          moment().format('ll') + ' ' + moment().format('LTS'));
         console.log(`Flashloan BUSD on Apeswap at ${apeBUSDResults.buy} `);
         console.log(`Sell BUSD on BakerySwap at ${bakeryBUSDResults.sell} `);
         console.log(`Expected profit: ${apeToBakeryBUSDProfit} BUSD`);
@@ -290,6 +298,8 @@ async function arbitrage(data) {
       }
       if (bakeryToApeBUSDProfit > 0 && bakeryToApeBUSDProfit > apeToBakeryBUSDProfit) {
         console.log("Arb opportunity found!");
+        console.log(pad(colors.yellow('Current Time:'), 30),
+          moment().format('ll') + ' ' + moment().format('LTS'));
         console.log(`Flashloan BUSD on Bakeryswap at ${bakeryBUSDResults.buy} `);
         console.log(`Sell BUSD on Apeswap at ${apeBUSDResults.sell} `);
         console.log(`Expected profit: ${bakeryToApeBUSDProfit} BUSD`);

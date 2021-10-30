@@ -140,32 +140,32 @@ async function fetchData(data) {
         console.log(`Buy ETH on Kyber at ${kyberRates.buy} dai`);
         console.log(`Sell ETH on Uniswap at ${uniswapRates.sell} dai`);
         console.log(`Expected profit: ${profit1} dai`);
-        const data = tx1.encodeABI();
-        const txData = {
-          from: admin,
-          to: flashloan.options.address,
-          data,
-          gas: gasCost1,
-          gasPrice
-        };
-        const receipt = await web3.eth.sendTransaction(txData);
-        console.log(`Transaction hash: ${receipt.transactionHash}`);
+        // const data = tx1.encodeABI();
+        // const txData = {
+        //   from: admin,
+        //   to: flashloan.options.address,
+        //   data,
+        //   gas: gasCost1,
+        //   gasPrice
+        // };
+        // const receipt = await web3.eth.sendTransaction(txData);
+        // console.log(`Transaction hash: ${receipt.transactionHash}`);
       } else if(profit2 > 0) {
         console.log('Arb opportunity found!');
         console.log(`Buy ETH from Uniswap at ${uniswapRates.buy} dai`);
         console.log(`Sell ETH from Kyber at ${kyberRates.sell} dai`);
         console.log(`Expected profit: ${profit2} dai`);
-        const data = tx2.encodeABI();
-        const txData = {
-          from: admin,
-          to: flashloan.options.address,
-          data,
-          gas: gasCost2,
-          gasPrice
-        };
-        const receipt = await web3.eth.sendTransaction(txData);
-        console.log(`Transaction hash: ${receipt.transactionHash}`);
-        process.send({receipt: receipt})
+        // const data = tx2.encodeABI();
+        // const txData = {
+        //   from: admin,
+        //   to: flashloan.options.address,
+        //   data,
+        //   gas: gasCost2,
+        //   gasPrice
+        // };
+        // const receipt = await web3.eth.sendTransaction(txData);
+        // console.log(`Transaction hash: ${receipt.transactionHash}`);
+        // process.send({receipt: receipt})
       }
     })
     .on('error', error => {

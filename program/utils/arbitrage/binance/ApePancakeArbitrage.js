@@ -2,6 +2,9 @@ require('dotenv').config();
 const Web3 = require('web3');
 const BigNumber = require('bignumber.js');
 const {mainnet} = require('../../addresses')
+const pad = require("pad");
+const colors = require("colors");
+const moment = require("moment");
 
 
 process.on('message', function (data) {
@@ -63,7 +66,6 @@ async function arbitrage(data) {
 
       const shiftedWBNBBorrowAmount = web3.utils.toBN(web3.utils.toWei(borrowAmount))
 
-      console.log(shiftedWBNBBorrowAmount.toString() );
       // get BUSD AMOUNT
       const rawApeBUSDValue = await apeswap.router.methods
         .getAmountsOut(shiftedWBNBBorrowAmount,
@@ -89,7 +91,7 @@ async function arbitrage(data) {
 
 
       // Set x Borrow Amount BNB / y BUSD Borrow Amount
-      const bUSDBorrowAmount = (Number(shiftedPancakeBUSDValue.toString()));
+      const bUSDBorrowAmount = (Number(shiftedApeBUSDValue.toString()));
       const shiftedBUSDBorrowAmount = new BigNumber(bUSDBorrowAmount).shiftedBy(stableToken.decimals);
 
 
@@ -202,7 +204,11 @@ async function arbitrage(data) {
       //console.log(apeToPancakeBUSDProfit)
 
       if (pancakeToApeWBNBProfit > 0 && pancakeToApeWBNBProfit > apeToPancakeWBNBProfit) {
+
         console.log("Arb opportunity found!");
+        console.log(pad(colors.yellow('Current Time:'), 30),
+          moment().format('ll') + ' ' + moment().format('LTS'));
+
         console.log(`Flashloan WBNB on Pancakeswap at ${pancakeWBNBResults.buy} `);
         console.log(`Sell WBNB on Apeswap at ${apeWBNBResults.sell} `);
         console.log(`Expected profit: ${pancakeToApeWBNBProfit} WBNB`);
@@ -232,6 +238,8 @@ async function arbitrage(data) {
       }
       if (apeToPancakeWBNBProfit > 0 && apeToPancakeWBNBProfit > pancakeToApeWBNBProfit) {
         console.log("Arb opportunity found!");
+        console.log(pad(colors.yellow('Current Time:'), 30),
+          moment().format('ll') + ' ' + moment().format('LTS'));
         console.log(`Buy WBNB from Apeswap at ${apeWBNBResults.buy} `);
         console.log(`Sell WBNB from PancakeSwap at ${pancakeWBNBResults.sell}`);
         console.log(`Expected profit: ${apeToPancakeWBNBProfit} WBNB`);
@@ -261,6 +269,8 @@ async function arbitrage(data) {
       }
       if (pancakeToApeBUSDProfit > 0 && pancakeToApeBUSDProfit > apeToPancakeBUSDProfit) {
         console.log("Arb opportunity found!");
+        console.log(pad(colors.yellow('Current Time:'), 30),
+          moment().format('ll') + ' ' + moment().format('LTS'));
         console.log(`Flashloan BUSD on Pancakeswap at ${pancakeBUSDResults.buy} `);
         console.log(`Sell BUSD on ApeSwap at ${apeBUSDResults.sell} `);
         console.log(`Expected profit: ${pancakeToApeBUSDProfit} BUSD`);
@@ -290,6 +300,8 @@ async function arbitrage(data) {
       }
       if (apeToPancakeBUSDProfit > 0 && apeToPancakeBUSDProfit > pancakeToApeBUSDProfit) {
         console.log("Arb opportunity found!");
+        console.log(pad(colors.yellow('Current Time:'), 30),
+          moment().format('ll') + ' ' + moment().format('LTS'));
         console.log(`Flashloan BUSD on Apeswap at ${apeBUSDResults.buy} `);
         console.log(`Sell BUSD on Pancakeswap at ${pancakeBUSDResults.sell} `);
         console.log(`Expected profit: ${apeToPancakeBUSDProfit} BUSD`);
