@@ -71,6 +71,13 @@ module.exports = {
       network_id: 1,       //mainnet,
 
     },
+    BSC_Mainnet: {
+      provider: () =>
+        new HDWalletProvider(process.env.PRIVATE_KEY, process.env.MORALIAS_BSC_MAINNET_WSS_URL),
+      network_id: 56,
+      gasPrice: 5000000000,
+      skipDryRun: false,
+    },
     ropsten: {
       provider: () => new HDWalletProvider(
         process.env.PRIVATE_KEY,
