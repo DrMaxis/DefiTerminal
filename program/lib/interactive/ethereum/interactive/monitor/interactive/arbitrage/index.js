@@ -9,7 +9,7 @@ function startInteractiveArbitrageMonitor() {
     {type: 'list', name: 'buyingExchange', message: 'Exchange You Will Buy From', choices: arbitrageActions.exchanges},
     {type: 'list', name: 'sellingExchange', message: 'Exchange You Will Sell At', choices: arbitrageActions.exchanges},
     {type: 'list', name: 'network', message: 'Target Network', choices: arbitrageActions.networks},
-    {type: 'input', name: 'borrowAmount', message: 'Borrow Amount'},
+    {type: 'input', name: 'borrowAmount', message: 'Borrow Amount(WETH)'},
   ];
 
   inquirer

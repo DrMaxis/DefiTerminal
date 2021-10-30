@@ -304,16 +304,16 @@ async function fetchData(data) {
         if (convertedProfit > 0) {
           console.log('Arb opportunity found Sushi -> Uniswap!');
           console.log(`Expected profit: ${web3.utils.fromWei(profit)} Dai`);
-          const data = tx.encodeABI();
-          const txData = {
-            from: admin.address,
-            to: flashloan.options.address,
-            data,
-            gas: gasCost,
-            gasPrice
-          };
-          const receipt = await web3.eth.sendTransaction(txData);
-          console.log(`Transaction hash: ${receipt.transactionHash}`);
+          // const data = tx.encodeABI();
+          // const txData = {
+          //   from: admin.address,
+          //   to: flashloan.options.address,
+          //   data,
+          //   gas: gasCost,
+          //   gasPrice
+          // };
+          // const receipt = await web3.eth.sendTransaction(txData);
+          // console.log(`Transaction hash: ${receipt.transactionHash}`);
         }
       }
 
