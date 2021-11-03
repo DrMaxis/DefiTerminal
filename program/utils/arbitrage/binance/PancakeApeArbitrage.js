@@ -37,12 +37,12 @@ async function arbitrage(data) {
   const admin  = web3.eth.accounts.wallet.add(process.env.PRIVATE_KEY);
 
   const apeswap = {
-    factory: new web3.eth.Contract(mainnet.apeswap.factory.ABI, mainnet.apeswap.factory.address),
-    router: new web3.eth.Contract(mainnet.apeswap.router.ABI, mainnet.apeswap.router.address),
+    factory: new web3.eth.Contract(mainnet.apeswap.factory.ABI, mainnet.apeswap.factory.address, {from: admin.address}),
+    router: new web3.eth.Contract(mainnet.apeswap.router.ABI, mainnet.apeswap.router.address, {from: admin.address}),
   }
   const pancakeswap = {
-    factory: new web3.eth.Contract(mainnet.pancakeswap.factory.ABI, mainnet.pancakeswap.factory.address),
-    router: new web3.eth.Contract(mainnet.pancakeswap.router.ABI, mainnet.pancakeswap.router.address),
+    factory: new web3.eth.Contract(mainnet.pancakeswap.factory.ABI, mainnet.pancakeswap.factory.address, {from: admin.address}),
+    router: new web3.eth.Contract(mainnet.pancakeswap.router.ABI, mainnet.pancakeswap.router.address, {from: admin.address}),
   }
 
   let stableToken = {
@@ -72,10 +72,7 @@ async function arbitrage(data) {
             stableToken.address])
         .call();
 
-      const shiftedPancakeBUSDValue = await new BigNumber(rawPancakeBUSDValue[1]).shiftedBy(-stableToken.decimals);
-      const pancakeBUSDValueBN = await new BigNumber(rawPancakeBUSDValue[1]);
-
-
+      let pancakeBUSDValueBN = await rawPancakeBUSDValue[1];
 
       // get WBNB/BUSD on Apeswap
       const rawApeBUSDValue = await apeswap.router.methods
@@ -83,18 +80,11 @@ async function arbitrage(data) {
           [tradingToken.address,
             stableToken.address])
         .call();
-      const shiftedApeBUSDValue = await new BigNumber(rawApeBUSDValue[1]).shiftedBy(-stableToken.decimals);
-      const apeBUSDValueBN = await new BigNumber(rawApeBUSDValue[1]);
-
-
+      let apeBUSDValueBN = await rawApeBUSDValue[1];
 
 
       // Set x Borrow Amount BNB / y BUSD Borrow Amount
-      const bUSDBorrowAmount = (Number(shiftedApeBUSDValue.toString()));
-      const shiftedBUSDBorrowAmount = new BigNumber(bUSDBorrowAmount).shiftedBy(stableToken.decimals);
-
-
-
+      let shiftedBUSDBorrowAmount = pancakeBUSDValueBN;
 
       // get WBNB
       const rawPancakeWBNBValue = await pancakeswap.router.methods
@@ -102,11 +92,8 @@ async function arbitrage(data) {
           [stableToken.address,
             tradingToken.address])
         .call();
-      const shiftedPancakeWBNBValue = await new BigNumber(rawPancakeWBNBValue[1])
-        .shiftedBy(-tradingToken.decimals);
-      const pancakeWBNBValueBN = await new BigNumber(rawPancakeWBNBValue[1]);
 
-
+      let pancakeWBNBValueBN = await rawPancakeWBNBValue[1];
 
       // get BUSD/WBNB on Apeswap
       const rawApeWBNBValue = await apeswap.router.methods
@@ -114,102 +101,66 @@ async function arbitrage(data) {
           [stableToken.address,
             tradingToken.address])
         .call();
-      const shiftedApeWBNBValue = await new BigNumber(rawApeWBNBValue[1])
-        .shiftedBy(-tradingToken.decimals);
-      const apeWBNBValueBN = await new BigNumber(rawApeWBNBValue[1]);
-
+      const apeWBNBValueBN = await rawApeWBNBValue[1];
 
       let bUSDAmount = shiftedBUSDBorrowAmount;
       let wBNBAmount = pancakeWBNBValueBN;
 
-      // let slippage = Number(0.02) * wBNBAmount;
-      // let wBNBAmountMinusSlippage = wBNBAmount - slippage;
-      // console.log(
-      //   {
-      //     wBNBAmount:wBNBAmount.toString(),
-      //     slippage:slippage,
-      //     percentage: '0.1',
-      //     wBNBAmountMinusSlippage:wBNBAmountMinusSlippage.toString()
-      //   }
-      // )
-
       const apeWBNBResults = {
-        buy: new BigNumber(((bUSDAmount / apeBUSDValueBN) * wBNBAmount))
-          .shiftedBy(-tradingToken.decimals)
-          .toString(),
-        sell: new BigNumber(((apeWBNBValueBN / wBNBAmount) * wBNBAmount))
-          .shiftedBy(-tradingToken.decimals)
-          .toString()
+        buy: (bUSDAmount / apeBUSDValueBN) * wBNBAmount,
+        sell: (apeWBNBValueBN / wBNBAmount) * wBNBAmount
       }
 
       const apeBUSDResults = {
-        buy: new BigNumber(((wBNBAmount / apeWBNBValueBN) * bUSDAmount))
-          .shiftedBy(-stableToken.decimals)
-          .toString(),
-        sell: new BigNumber(((apeBUSDValueBN / bUSDAmount) * bUSDAmount))
-          .shiftedBy(-stableToken.decimals)
-          .toString()
+        buy: (wBNBAmount / apeWBNBValueBN) * bUSDAmount,
+        sell: (apeBUSDValueBN / bUSDAmount) * bUSDAmount
       }
 
       const pancakeWBNBResults = {
-        buy: new BigNumber(((bUSDAmount / pancakeBUSDValueBN) * wBNBAmount))
-          .shiftedBy(-tradingToken.decimals)
-          .toString(),
-        sell: new BigNumber(((pancakeWBNBValueBN / wBNBAmount) * wBNBAmount))
-          .shiftedBy(-tradingToken.decimals)
-          .toString()
+        buy: (bUSDAmount / pancakeBUSDValueBN) * wBNBAmount,
+        sell: (pancakeWBNBValueBN / wBNBAmount) * wBNBAmount
       }
 
       const pancakeBUSDResults = {
-        buy: new BigNumber(((wBNBAmount / pancakeWBNBValueBN) * bUSDAmount))
-          .shiftedBy(-stableToken.decimals)
-          .toString(),
-        sell: new BigNumber(((pancakeBUSDValueBN / bUSDAmount) * bUSDAmount))
-          .shiftedBy(-stableToken.decimals)
-          .toString()
+        buy: (wBNBAmount / pancakeWBNBValueBN) * bUSDAmount,
+        sell: (pancakeBUSDValueBN / bUSDAmount) * bUSDAmount
       }
 
       console.log(pancakeWBNBResults, pancakeBUSDResults)
 
+      const apeWBNBPrice = (Number(apeWBNBResults.buy) + Number(apeWBNBResults.sell)) / borrowAmount / 2
+      const pancakeWBNBPrice = (Number(pancakeWBNBResults.buy) + Number(pancakeWBNBResults.sell)) / borrowAmount / 2
 
-      const apePaybackCalcBUSD = (apeWBNBResults.buy * 1000) / 996;
-      const apePaybackBUSD = new BigNumber(apePaybackCalcBUSD).shiftedBy(stableToken.decimals);
-      const apePaybackBUSDFee = apePaybackCalcBUSD - apeWBNBResults.buy;
+      const apePaybackCalcBUSD = (apeWBNBResults.buy / 0.997) * 10 ** 18;
+      const apePaybackBUSD = apePaybackCalcBUSD.toString()
+      const apePaybackBUSDFee = apePaybackCalcBUSD / 10 ** 18 - apeWBNBResults.buy;
 
-      const apePaybackCalcWBNB = (apeBUSDResults.buy * 1000) / 996;
-      const apePaybackWBNB = new BigNumber(apePaybackCalcWBNB).shiftedBy(tradingToken.decimals);
-      const apePaybackWBNBFee = apePaybackCalcWBNB - apeBUSDResults.buy;
+      const apePaybackCalcWBNB = (apeBUSDResults.buy / 0.997) * 10 ** 18;
+      const apePaybackWBNB = new BigNumber(apePaybackCalcWBNB).toString();
+      const apePaybackWBNBFee = (apePaybackCalcWBNB / 10 ** 18  - apeBUSDResults.buy) * apeWBNBPrice;
 
-      const pancakePaybackCalcBUSD = (pancakeWBNBResults.buy * 1000) / 996;
-      const pancakePaybackBUSD = new BigNumber(pancakePaybackCalcBUSD).shiftedBy(stableToken.decimals);
-      const pancakePaybackBUSDFee = pancakePaybackCalcBUSD - pancakeWBNBResults.buy;
+      const pancakePaybackCalcBUSD = (pancakeWBNBResults.buy / 0.997) * 10 ** 18;
+      const pancakePaybackBUSD = new BigNumber(pancakePaybackCalcBUSD).toString();
+      const pancakePaybackBUSDFee = pancakePaybackCalcBUSD / 10 ** 18   - pancakeWBNBResults.buy;
 
-      const pancakePaybackCalcWBNB = (pancakeBUSDResults.buy * 1000) / 996;
-      const pancakePaybackWBNB = new BigNumber(pancakePaybackCalcWBNB).shiftedBy(tradingToken.decimals);
-      const pancakePaybackWBNBFee = pancakePaybackCalcWBNB - pancakeBUSDResults.buy;
+      const pancakePaybackCalcWBNB = (pancakeBUSDResults.buy / 0.997) * 10 ** 18;
+      const pancakePaybackWBNB = new BigNumber(pancakePaybackCalcWBNB).toString();
+      const pancakePaybackWBNBFee = (pancakePaybackCalcWBNB / 10 ** 18  - pancakeBUSDResults.buy) * pancakeWBNBPrice;
 
 
       const gasPrice = await web3.eth.getGasPrice();
-      const txCost = 330000 * parseInt(gasPrice);
+      const txCost = ((330000 * parseInt(gasPrice))/ 10 ** 18) * pancakeWBNBPrice;
 
 
-      const currentBNBPrice = (Number(pancakeWBNBResults.buy) + Number(pancakeWBNBResults.sell)) / 2;
 
-      const apeToPancakeWBNBProfit = new BigNumber(wBNBAmount * (Number(apeWBNBResults.sell) - Number(pancakeWBNBResults.buy))
-        - (new BigNumber(txCost).shiftedBy(-tradingToken.decimals) * Number(currentBNBPrice) + Number(apePaybackWBNBFee)))
-        .shiftedBy(-tradingToken.decimals).toString();
 
-      const apeToPancakeBUSDProfit = new BigNumber(bUSDAmount * (Number(apeBUSDResults.sell) - Number(pancakeBUSDResults.buy))
-        - (new BigNumber(txCost).shiftedBy(-tradingToken.decimals) * Number(currentBNBPrice) + Number(apePaybackBUSDFee)))
-        .shiftedBy(-stableToken.decimals).toString();
+      const apeToPancakeWBNBProfit = apeWBNBResults.sell - pancakeWBNBResults.buy - txCost - apePaybackBUSDFee
 
-      const pancakeToApeWBNBProfit = new BigNumber(wBNBAmount * (Number(pancakeWBNBResults.sell) - Number(apeWBNBResults.buy))
-        - (new BigNumber(txCost).shiftedBy(-tradingToken.decimals) * Number(currentBNBPrice) + Number(pancakePaybackWBNBFee)))
-        .shiftedBy(-stableToken.decimals).toString();
+      const apeToPancakeBUSDProfit = apeBUSDResults.sell - pancakeBUSDResults.buy - txCost - apePaybackWBNBFee
 
-      const pancakeToApeBUSDProfit = new BigNumber(bUSDAmount * (Number(pancakeBUSDResults.sell) - Number(apeBUSDResults.buy))
-        - (new BigNumber(txCost).shiftedBy(-tradingToken.decimals) * Number(currentBNBPrice) + Number(pancakePaybackBUSDFee)))
-        .shiftedBy(-tradingToken.decimals).toString();
+      const pancakeToApeWBNBProfit = pancakeWBNBResults.sell - apeWBNBResults.buy - txCost - pancakePaybackBUSDFee
+
+      const pancakeToApeBUSDProfit = pancakeBUSDResults.sell - apeBUSDResults.buy - txCost - pancakePaybackWBNBFee
 
       //console.log(pancakeToApeBUSDProfit)
 
@@ -217,18 +168,21 @@ async function arbitrage(data) {
         console.log("Arbitrage opportunity found!");
         console.log(`Flashloan WBNB on Apeswap at ${apeWBNBResults.buy} `);
         console.log(`Sell WBNB on Pancakeswap at ${pancakeWBNBResults.sell} `);
-        console.log(`Expected profit: ${apeToPancakeWBNBProfit} WBNB`);
+        console.log(`Expected Flashswap Cost ${pancakePaybackBUSDFee}`);
+        console.log(`Estimated Gas Cost: ${txCost}`);
+        console.log(`Expected profit: ${apeToPancakeWBNBProfit} BUSD`);
 
-        let slippage = Number(0.02) * wBNBAmount;
-        let wBNBAmountMinusSlippage = wBNBAmount - slippage;
+        // let slippage = Number(0.02) * wBNBAmount;
+        // let wBNBAmountMinusSlippage = wBNBAmount - slippage;
+
         let tx = flashloan.methods.startArbitrage(
           tradingToken.address, //token1
           stableToken.address, //token2
-          wBNBAmount, //amount0
+          wBNBAmount.toString(), //amount0
           0, //amount1
           mainnet.apeswap.factory.address, //apefactory
           mainnet.pancakeswap.router.address, //pancakerouter
-          pancakePaybackBUSD
+          pancakePaybackCalcBUSD.toString()
         );
 
         const data = tx.encodeABI();
@@ -248,19 +202,21 @@ async function arbitrage(data) {
         console.log("Arbitrage opportunity found!");
         console.log(`Buy WBNB from Pancakeswap at ${pancakeWBNBResults.buy} `);
         console.log(`Sell WBNB from ApeSwap at ${apeWBNBResults.sell}`);
-        console.log(`Expected profit: ${pancakeToApeWBNBProfit} WBNB`);
+        console.log(`Expected Flashswap Cost ${apePaybackBUSDFee}`);
+        console.log(`Estimated Gas Cost: ${txCost}`);
+        console.log(`Expected profit: ${pancakeToApeWBNBProfit} BUSD`);
 
-        let slippage = Number(0.02) * wBNBAmount;
-        let wBNBAmountMinusSlippage = wBNBAmount - slippage;
+        // let slippage = Number(0.02) * wBNBAmount;
+        // let wBNBAmountMinusSlippage = wBNBAmount - slippage;
 
         let tx = flashloan.methods.startArbitrage(
           tradingToken.address, //token1
           stableToken.address, //token2
-          wBNBAmount, //amount0
+          wBNBAmount.toString(), //amount0
           0, //amount1
           mainnet.pancakeswap.factory.address, //pancakefactory
           mainnet.apeswap.router.address, // aperouter
-          apePaybackBUSD.toString()
+          apePaybackCalcBUSD.toString()
         );
 
         const data = tx.encodeABI();
@@ -280,19 +236,21 @@ async function arbitrage(data) {
         console.log("Arbitrage opportunity found!");
         console.log(`Flashloan BUSD on Apeswap at ${apeBUSDResults.buy} `);
         console.log(`Sell BUSD on PancakeSwap at ${pancakeBUSDResults.sell} `);
-        console.log(`Expected profit: ${apeToPancakeBUSDProfit} BUSD`);
+        console.log(`Expected Flashswap Cost ${apePaybackWBNBFee}`);
+        console.log(`Estimated Gas Cost: ${txCost}`);
+        console.log(`Expected profit: ${apeToPancakeBUSDProfit} WBNB`);
 
-        let slippage = Number(0.02) * bUSDAmount;
-        let bUSDAmountMinusSlippage = bUSDAmount - slippage;
+        // let slippage = Number(0.02) * bUSDAmount;
+        // let bUSDAmountMinusSlippage = bUSDAmount - slippage;
 
         let tx = flashloan.methods.startArbitrage(
           stableToken.address, //token1
           tradingToken.address, //token2
-          bUSDAmount, //amount0
+          bUSDAmount.toString(), //amount0
           0, //amount1
           mainnet.apeswap.factory.address, //apefactory
           mainnet.pancakeswap.router.address, //pancakerouter
-          pancakePaybackWBNB.toString()
+          pancakePaybackCalcWBNB.toString()
         );
 
         const data = tx.encodeABI();
@@ -312,19 +270,21 @@ async function arbitrage(data) {
         console.log("Arbitrage opportunity found!");
         console.log(`Flashloan BUSD on Pancakeswap at ${pancakeBUSDResults.buy} `);
         console.log(`Sell BUSD on Apeswap at ${apeBUSDResults.sell} `);
-        console.log(`Expected profit: ${pancakeToApeBUSDProfit} BUSD`);
+        console.log(`Expected Flashswap Cost ${apePaybackWBNBFee}`);
+        console.log(`Estimated Gas Cost: ${txCost}`);
+        console.log(`Expected profit: ${pancakeToApeBUSDProfit} WBNB`);
 
-        let slippage = Number(0.02) * bUSDAmount;
-        let bUSDAmountMinusSlippage = bUSDAmount - slippage;
+        // let slippage = Number(0.02) * bUSDAmount;
+        // let bUSDAmountMinusSlippage = bUSDAmount - slippage;
 
         let tx = flashloan.methods.startArbitrage(
           stableToken.address, //token1
           tradingToken.address, //token2
-          bUSDAmount, //amount0
+          bUSDAmount.toString(), //amount0
           0, //amount1
           mainnet.apeswap.factory.address, //apefactory
           mainnet.pancakeswap.router.address, //pancakerouter
-          apePaybackWBNB
+          apePaybackCalcWBNB
         );
 
         const data = tx.encodeABI();
@@ -367,10 +327,7 @@ async function arbitrage(data) {
               stableToken.address])
           .call();
 
-        const shiftedPancakeBUSDValue = await new BigNumber(rawPancakeBUSDValue[1]).shiftedBy(-stableToken.decimals);
-        const pancakeBUSDValueBN = await new BigNumber(rawPancakeBUSDValue[1]);
-
-
+        let pancakeBUSDValueBN = await rawPancakeBUSDValue[1];
 
         // get WBNB/BUSD on Apeswap
         const rawApeBUSDValue = await apeswap.router.methods
@@ -378,18 +335,11 @@ async function arbitrage(data) {
             [tradingToken.address,
               stableToken.address])
           .call();
-        const shiftedApeBUSDValue = await new BigNumber(rawApeBUSDValue[1]).shiftedBy(-stableToken.decimals);
-        const apeBUSDValueBN = await new BigNumber(rawApeBUSDValue[1]);
-
-
+        let apeBUSDValueBN = await rawApeBUSDValue[1];
 
 
         // Set x Borrow Amount BNB / y BUSD Borrow Amount
-        const bUSDBorrowAmount = (Number(shiftedApeBUSDValue.toString()));
-        const shiftedBUSDBorrowAmount = new BigNumber(bUSDBorrowAmount).shiftedBy(stableToken.decimals);
-
-
-
+        let shiftedBUSDBorrowAmount = pancakeBUSDValueBN;
 
         // get WBNB
         const rawPancakeWBNBValue = await pancakeswap.router.methods
@@ -397,11 +347,8 @@ async function arbitrage(data) {
             [stableToken.address,
               tradingToken.address])
           .call();
-        const shiftedPancakeWBNBValue = await new BigNumber(rawPancakeWBNBValue[1])
-          .shiftedBy(-tradingToken.decimals);
-        const pancakeWBNBValueBN = await new BigNumber(rawPancakeWBNBValue[1]);
 
-
+        let pancakeWBNBValueBN = await rawPancakeWBNBValue[1];
 
         // get BUSD/WBNB on Apeswap
         const rawApeWBNBValue = await apeswap.router.methods
@@ -409,132 +356,95 @@ async function arbitrage(data) {
             [stableToken.address,
               tradingToken.address])
           .call();
-        const shiftedApeWBNBValue = await new BigNumber(rawApeWBNBValue[1])
-          .shiftedBy(-tradingToken.decimals);
-        const apeWBNBValueBN = await new BigNumber(rawApeWBNBValue[1]);
-
+        const apeWBNBValueBN = await rawApeWBNBValue[1];
 
         let bUSDAmount = shiftedBUSDBorrowAmount;
         let wBNBAmount = pancakeWBNBValueBN;
 
-        // let slippage = Number(0.02) * wBNBAmount;
-        // let wBNBAmountMinusSlippage = wBNBAmount - slippage;
-        // console.log(
-        //   {
-        //     wBNBAmount:wBNBAmount.toString(),
-        //     slippage:slippage,
-        //     percentage: '0.1',
-        //     wBNBAmountMinusSlippage:wBNBAmountMinusSlippage.toString()
-        //   }
-        // )
-
         const apeWBNBResults = {
-          buy: new BigNumber(((bUSDAmount / apeBUSDValueBN) * wBNBAmount))
-            .shiftedBy(-tradingToken.decimals)
-            .toString(),
-          sell: new BigNumber(((apeWBNBValueBN / wBNBAmount) * wBNBAmount))
-            .shiftedBy(-tradingToken.decimals)
-            .toString()
+          buy: (bUSDAmount / apeBUSDValueBN) * wBNBAmount,
+          sell: (apeWBNBValueBN / wBNBAmount) * wBNBAmount
         }
 
         const apeBUSDResults = {
-          buy: new BigNumber(((wBNBAmount / apeWBNBValueBN) * bUSDAmount))
-            .shiftedBy(-stableToken.decimals)
-            .toString(),
-          sell: new BigNumber(((apeBUSDValueBN / bUSDAmount) * bUSDAmount))
-            .shiftedBy(-stableToken.decimals)
-            .toString()
+          buy: (wBNBAmount / apeWBNBValueBN) * bUSDAmount,
+          sell: (apeBUSDValueBN / bUSDAmount) * bUSDAmount
         }
 
         const pancakeWBNBResults = {
-          buy: new BigNumber(((bUSDAmount / pancakeBUSDValueBN) * wBNBAmount))
-            .shiftedBy(-tradingToken.decimals)
-            .toString(),
-          sell: new BigNumber(((pancakeWBNBValueBN / wBNBAmount) * wBNBAmount))
-            .shiftedBy(-tradingToken.decimals)
-            .toString()
+          buy: (bUSDAmount / pancakeBUSDValueBN) * wBNBAmount,
+          sell: (pancakeWBNBValueBN / wBNBAmount) * wBNBAmount
         }
 
         const pancakeBUSDResults = {
-          buy: new BigNumber(((wBNBAmount / pancakeWBNBValueBN) * bUSDAmount))
-            .shiftedBy(-stableToken.decimals)
-            .toString(),
-          sell: new BigNumber(((pancakeBUSDValueBN / bUSDAmount) * bUSDAmount))
-            .shiftedBy(-stableToken.decimals)
-            .toString()
+          buy: (wBNBAmount / pancakeWBNBValueBN) * bUSDAmount,
+          sell: (pancakeBUSDValueBN / bUSDAmount) * bUSDAmount
         }
 
         console.log(pancakeWBNBResults, pancakeBUSDResults)
 
+        const apeWBNBPrice = (Number(apeWBNBResults.buy) + Number(apeWBNBResults.sell)) / borrowAmount / 2
+        const pancakeWBNBPrice = (Number(pancakeWBNBResults.buy) + Number(pancakeWBNBResults.sell)) / borrowAmount / 2
 
-        const apePaybackCalcBUSD = (apeWBNBResults.buy * 1000) / 996;
-        const apePaybackBUSD = new BigNumber(apePaybackCalcBUSD).shiftedBy(stableToken.decimals);
-        const apePaybackBUSDFee = apePaybackCalcBUSD - apeWBNBResults.buy;
+        const apePaybackCalcBUSD = (apeWBNBResults.buy / 0.997) * 10 ** 18;
+        const apePaybackBUSD = apePaybackCalcBUSD.toString()
+        const apePaybackBUSDFee = apePaybackCalcBUSD / 10 ** 18 - apeWBNBResults.buy;
 
-        const apePaybackCalcWBNB = (apeBUSDResults.buy * 1000) / 996;
-        const apePaybackWBNB = new BigNumber(apePaybackCalcWBNB).shiftedBy(tradingToken.decimals);
-        const apePaybackWBNBFee = apePaybackCalcWBNB - apeBUSDResults.buy;
+        const apePaybackCalcWBNB = (apeBUSDResults.buy / 0.997) * 10 ** 18;
+        const apePaybackWBNB = new BigNumber(apePaybackCalcWBNB).toString();
+        const apePaybackWBNBFee = (apePaybackCalcWBNB / 10 ** 18  - apeBUSDResults.buy) * apeWBNBPrice;
 
-        const pancakePaybackCalcBUSD = (pancakeWBNBResults.buy * 1000) / 996;
-        const pancakePaybackBUSD = new BigNumber(pancakePaybackCalcBUSD).shiftedBy(stableToken.decimals);
-        const pancakePaybackBUSDFee = pancakePaybackCalcBUSD - pancakeWBNBResults.buy;
+        const pancakePaybackCalcBUSD = (pancakeWBNBResults.buy / 0.997) * 10 ** 18;
+        const pancakePaybackBUSD = new BigNumber(pancakePaybackCalcBUSD).toString();
+        const pancakePaybackBUSDFee = pancakePaybackCalcBUSD / 10 ** 18   - pancakeWBNBResults.buy;
 
-        const pancakePaybackCalcWBNB = (pancakeBUSDResults.buy * 1000) / 996;
-        const pancakePaybackWBNB = new BigNumber(pancakePaybackCalcWBNB).shiftedBy(tradingToken.decimals);
-        const pancakePaybackWBNBFee = pancakePaybackCalcWBNB - pancakeBUSDResults.buy;
+        const pancakePaybackCalcWBNB = (pancakeBUSDResults.buy / 0.997) * 10 ** 18;
+        const pancakePaybackWBNB = new BigNumber(pancakePaybackCalcWBNB).toString();
+        const pancakePaybackWBNBFee = (pancakePaybackCalcWBNB / 10 ** 18  - pancakeBUSDResults.buy) * pancakeWBNBPrice;
 
 
         const gasPrice = await web3.eth.getGasPrice();
-        const txCost = 330000 * parseInt(gasPrice);
+        const txCost = ((330000 * parseInt(gasPrice))/ 10 ** 18) * pancakeWBNBPrice;
 
 
-        const currentBNBPrice = (Number(pancakeWBNBResults.buy) + Number(pancakeWBNBResults.sell)) / 2;
 
-        const apeToPancakeWBNBProfit = new BigNumber(wBNBAmount * (Number(apeWBNBResults.sell) - Number(pancakeWBNBResults.buy))
-          - (new BigNumber(txCost).shiftedBy(-tradingToken.decimals) * Number(currentBNBPrice) + Number(apePaybackWBNBFee)))
-          .shiftedBy(-tradingToken.decimals).toString();
 
-        const apeToPancakeBUSDProfit = new BigNumber(bUSDAmount * (Number(apeBUSDResults.sell) - Number(pancakeBUSDResults.buy))
-          - (new BigNumber(txCost).shiftedBy(-tradingToken.decimals) * Number(currentBNBPrice) + Number(apePaybackBUSDFee)))
-          .shiftedBy(-stableToken.decimals).toString();
+        const apeToPancakeWBNBProfit = apeWBNBResults.sell - pancakeWBNBResults.buy - txCost - apePaybackBUSDFee
 
-        const pancakeToApeWBNBProfit = new BigNumber(wBNBAmount * (Number(pancakeWBNBResults.sell) - Number(apeWBNBResults.buy))
-          - (new BigNumber(txCost).shiftedBy(-tradingToken.decimals) * Number(currentBNBPrice) + Number(pancakePaybackWBNBFee)))
-          .shiftedBy(-stableToken.decimals).toString();
+        const apeToPancakeBUSDProfit = apeBUSDResults.sell - pancakeBUSDResults.buy - txCost - apePaybackWBNBFee
 
-        const pancakeToApeBUSDProfit = new BigNumber(bUSDAmount * (Number(pancakeBUSDResults.sell) - Number(apeBUSDResults.buy))
-          - (new BigNumber(txCost).shiftedBy(-tradingToken.decimals) * Number(currentBNBPrice) + Number(pancakePaybackBUSDFee)))
-          .shiftedBy(-tradingToken.decimals).toString();
+        const pancakeToApeWBNBProfit = pancakeWBNBResults.sell - apeWBNBResults.buy - txCost - pancakePaybackBUSDFee
+
+        const pancakeToApeBUSDProfit = pancakeBUSDResults.sell - apeBUSDResults.buy - txCost - pancakePaybackWBNBFee
 
         //console.log(pancakeToApeBUSDProfit)
 
         if (apeToPancakeWBNBProfit > 0 && apeToPancakeWBNBProfit > pancakeToApeWBNBProfit) {
           console.log("Arbitrage opportunity found!");
-          console.log(pad(colors.yellow('Current Time:'), 30),
-            moment().format('ll') + ' ' + moment().format('LTS'));
           console.log(`Flashloan WBNB on Apeswap at ${apeWBNBResults.buy} `);
           console.log(`Sell WBNB on Pancakeswap at ${pancakeWBNBResults.sell} `);
-          console.log(`Expected profit: ${apeToPancakeWBNBProfit} WBNB`);
+          console.log(`Expected Flashswap Cost ${pancakePaybackBUSDFee}`);
+          console.log(`Estimated Gas Cost: ${txCost}`);
+          console.log(`Expected profit: ${apeToPancakeWBNBProfit} BUSD`);
 
-          let slippage = Number(0.02) * wBNBAmount;
-          let wBNBAmountMinusSlippage = wBNBAmount - slippage;
-
+          // let slippage = Number(0.02) * wBNBAmount;
+          // let wBNBAmountMinusSlippage = wBNBAmount - slippage;
 
           let tx = flashloan.methods.startArbitrage(
             tradingToken.address, //token1
             stableToken.address, //token2
-            wBNBAmountMinusSlippage, //amount0
+            wBNBAmount.toString(), //amount0
             0, //amount1
             mainnet.apeswap.factory.address, //apefactory
             mainnet.pancakeswap.router.address, //pancakerouter
-            pancakePaybackBUSD
+            pancakePaybackCalcBUSD.toString()
           );
 
-          let requestData = tx.encodeABI();
+          const data = tx.encodeABI();
           const txData = {
             from: admin.address,
             to: flashloan.options.address,
-            requestData,
+            data,
             gas: "330000",
             gasPrice: gasPrice,
           };
@@ -545,30 +455,30 @@ async function arbitrage(data) {
         }
         if (pancakeToApeWBNBProfit > 0 && pancakeToApeWBNBProfit > apeToPancakeWBNBProfit) {
           console.log("Arbitrage opportunity found!");
-          console.log(pad(colors.yellow('Current Time:'), 30),
-            moment().format('ll') + ' ' + moment().format('LTS'));
           console.log(`Buy WBNB from Pancakeswap at ${pancakeWBNBResults.buy} `);
           console.log(`Sell WBNB from ApeSwap at ${apeWBNBResults.sell}`);
-          console.log(`Expected profit: ${pancakeToApeWBNBProfit} WBNB`);
+          console.log(`Expected Flashswap Cost ${apePaybackBUSDFee}`);
+          console.log(`Estimated Gas Cost: ${txCost}`);
+          console.log(`Expected profit: ${pancakeToApeWBNBProfit} BUSD`);
 
-          let slippage = Number(0.02) * wBNBAmount;
-          let wBNBAmountMinusSlippage = wBNBAmount - slippage;
+          // let slippage = Number(0.02) * wBNBAmount;
+          // let wBNBAmountMinusSlippage = wBNBAmount - slippage;
 
           let tx = flashloan.methods.startArbitrage(
             tradingToken.address, //token1
             stableToken.address, //token2
-            wBNBAmountMinusSlippage, //amount0
+            wBNBAmount.toString(), //amount0
             0, //amount1
             mainnet.pancakeswap.factory.address, //pancakefactory
             mainnet.apeswap.router.address, // aperouter
-            apePaybackBUSD.toString()
+            apePaybackCalcBUSD.toString()
           );
 
-          let requestData = tx.encodeABI();
+          const data = tx.encodeABI();
           const txData = {
             from: admin.address,
             to: flashloan.options.address,
-            requestData,
+            data,
             gas: "330000",
             gasPrice: gasPrice,
           };
@@ -579,30 +489,30 @@ async function arbitrage(data) {
         }
         if (apeToPancakeBUSDProfit > 0 && apeToPancakeBUSDProfit > pancakeToApeBUSDProfit) {
           console.log("Arbitrage opportunity found!");
-          console.log(pad(colors.yellow('Current Time:'), 30),
-            moment().format('ll') + ' ' + moment().format('LTS'));
           console.log(`Flashloan BUSD on Apeswap at ${apeBUSDResults.buy} `);
           console.log(`Sell BUSD on PancakeSwap at ${pancakeBUSDResults.sell} `);
-          console.log(`Expected profit: ${apeToPancakeBUSDProfit} BUSD`);
+          console.log(`Expected Flashswap Cost ${apePaybackWBNBFee}`);
+          console.log(`Estimated Gas Cost: ${txCost}`);
+          console.log(`Expected profit: ${apeToPancakeBUSDProfit} WBNB`);
 
-          let slippage = Number(0.02) * bUSDAmount;
-          let bUSDAmountMinusSlippage = bUSDAmount - slippage;
+          // let slippage = Number(0.02) * bUSDAmount;
+          // let bUSDAmountMinusSlippage = bUSDAmount - slippage;
 
           let tx = flashloan.methods.startArbitrage(
             stableToken.address, //token1
             tradingToken.address, //token2
-            bUSDAmountMinusSlippage, //amount0
+            bUSDAmount.toString(), //amount0
             0, //amount1
             mainnet.apeswap.factory.address, //apefactory
             mainnet.pancakeswap.router.address, //pancakerouter
-            pancakePaybackWBNB.toString()
+            pancakePaybackCalcWBNB.toString()
           );
 
-          let requestData = tx.encodeABI();
+          const data = tx.encodeABI();
           const txData = {
             from: admin.address,
             to: flashloan.options.address,
-            requestData,
+            data,
             gas: "330000",
             gasPrice: gasPrice,
           };
@@ -613,30 +523,30 @@ async function arbitrage(data) {
         }
         if (pancakeToApeBUSDProfit > 0 && pancakeToApeBUSDProfit > apeToPancakeBUSDProfit) {
           console.log("Arbitrage opportunity found!");
-          console.log(pad(colors.yellow('Current Time:'), 30),
-            moment().format('ll') + ' ' + moment().format('LTS'));
           console.log(`Flashloan BUSD on Pancakeswap at ${pancakeBUSDResults.buy} `);
           console.log(`Sell BUSD on Apeswap at ${apeBUSDResults.sell} `);
-          console.log(`Expected profit: ${pancakeToApeBUSDProfit} BUSD`);
+          console.log(`Expected Flashswap Cost ${apePaybackWBNBFee}`);
+          console.log(`Estimated Gas Cost: ${txCost}`);
+          console.log(`Expected profit: ${pancakeToApeBUSDProfit} WBNB`);
 
-          let slippage = Number(0.02) * bUSDAmount;
-          let bUSDAmountMinusSlippage = bUSDAmount - slippage;
+          // let slippage = Number(0.02) * bUSDAmount;
+          // let bUSDAmountMinusSlippage = bUSDAmount - slippage;
 
           let tx = flashloan.methods.startArbitrage(
             stableToken.address, //token1
             tradingToken.address, //token2
-            bUSDAmountMinusSlippage, //amount0
+            bUSDAmount.toString(), //amount0
             0, //amount1
             mainnet.apeswap.factory.address, //apefactory
             mainnet.pancakeswap.router.address, //pancakerouter
-            apePaybackWBNB
+            apePaybackCalcWBNB
           );
 
-          let requestData = tx.encodeABI();
+          const data = tx.encodeABI();
           const txData = {
             from: admin.address,
             to: flashloan.options.address,
-            requestData,
+            data,
             gas: "330000",
             gasPrice: gasPrice,
           };
