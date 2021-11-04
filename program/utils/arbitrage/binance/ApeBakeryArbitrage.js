@@ -5,6 +5,7 @@ const {mainnet} = require('../../addresses')
 const pad = require("pad");
 const colors = require("colors");
 const moment = require("moment");
+const ApeBakeryFlashloan = require("../../../../build/contracts/ApeBakeryArbitrage.json");
 
 
 process.on('message', function (data) {
@@ -23,13 +24,23 @@ function sleep(ms) {
 
 async function arbitrage(data) {
   const borrowAmount = data.borrowAmount;
-  const web3 = new Web3(new Web3.providers.WebsocketProvider(process.env.MORALIAS_BSC_MAINNET_WSS_URL));
-  const networkId = await web3.eth.net.getId();
+  const oneWei = ( 10 ** 18 );
+  let web3, networkId, flashloan;
+
+  if(data.network === 'Local'){
+    web3 = new Web3(new Web3.providers.WebsocketProvider('http://127.0.0.1:8545'));
+    flashloan = new web3.eth.Contract(ApeBakeryFlashloan.abi, ApeBakeryFlashloan.networks[56].address);
+  } else {
+    web3 = new Web3(new Web3.providers.WebsocketProvider(process.env.MORALIAS_BSC_MAINNET_WSS_URL));
+    networkId = await web3.eth.net.getId();
+    flashloan = new web3.eth.Contract(ApeBakeryFlashloan.abi, ApeBakeryFlashloan.networks[networkId].address);
+  }
 
   const bakeryswap = {
     factory: new web3.eth.Contract(mainnet.bakeryswap.factory.ABI, mainnet.bakeryswap.factory.address),
     router: new web3.eth.Contract(mainnet.bakeryswap.router.ABI, mainnet.bakeryswap.router.address),
   }
+
   const apeswap = {
     factory: new web3.eth.Contract(mainnet.apeswap.factory.ABI, mainnet.apeswap.factory.address),
     router: new web3.eth.Contract(mainnet.apeswap.router.ABI, mainnet.apeswap.router.address),
@@ -47,7 +58,6 @@ async function arbitrage(data) {
     decimals: mainnet.tokenPairs.Binance[data.pair].tradingToken.decimals,
   }
 
-  //let flashloan = new web3.eth.Contract(BakeryApeFlashloan.abi, BakeryApeFlashloan.networks[networkId].address);
 
 
   web3.eth.subscribe('newBlockHeaders', (error, result) => {
@@ -66,6 +76,7 @@ async function arbitrage(data) {
 
       const shiftedWBNBBorrowAmount = web3.utils.toBN(web3.utils.toWei(borrowAmount))
 
+      console.log(shiftedWBNBBorrowAmount.toString());
       // get BUSD AMOUNT
       const rawApeBUSDValue = await apeswap.router.methods
         .getAmountsOut(shiftedWBNBBorrowAmount,
@@ -73,10 +84,7 @@ async function arbitrage(data) {
             stableToken.address])
         .call();
 
-      const shiftedApeBUSDValue = await new BigNumber(rawApeBUSDValue[1]).shiftedBy(-stableToken.decimals);
-      const apeBUSDValueBN = await new BigNumber(rawApeBUSDValue[1]);
-
-
+      let apeBUSDValueBN = await rawApeBUSDValue[1];
 
       // get WBNB/BUSD on Bakeryswap
       const rawBakeryBUSDValue = await bakeryswap.router.methods
@@ -84,18 +92,11 @@ async function arbitrage(data) {
           [tradingToken.address,
             stableToken.address])
         .call();
-      const shiftedBakeryBUSDValue = await new BigNumber(rawBakeryBUSDValue[1]).shiftedBy(-stableToken.decimals);
-      const bakeryBUSDValueBN = await new BigNumber(rawBakeryBUSDValue[1]);
-
-
+      let bakeryBUSDValueBN = await rawBakeryBUSDValue[1];
 
 
       // Set x Borrow Amount BNB / y BUSD Borrow Amount
-      const bUSDBorrowAmount = (Number(shiftedBakeryBUSDValue.toString()));
-      const shiftedBUSDBorrowAmount = new BigNumber(bUSDBorrowAmount).shiftedBy(stableToken.decimals);
-
-
-
+      let shiftedBUSDBorrowAmount = apeBUSDValueBN;
 
       // get WBNB
       const rawApeWBNBValue = await apeswap.router.methods
@@ -103,11 +104,8 @@ async function arbitrage(data) {
           [stableToken.address,
             tradingToken.address])
         .call();
-      const shiftedApeWBNBValue = await new BigNumber(rawApeWBNBValue[1])
-        .shiftedBy(-tradingToken.decimals);
-      const apeWBNBValueBN = await new BigNumber(rawApeWBNBValue[1]);
 
-
+      let apeWBNBValueBN = await rawApeWBNBValue[1];
 
       // get BUSD/WBNB on Bakeryswap
       const rawBakeryWBNBValue = await bakeryswap.router.methods
@@ -115,219 +113,230 @@ async function arbitrage(data) {
           [stableToken.address,
             tradingToken.address])
         .call();
-      const shiftedBakeryWBNBValue = await new BigNumber(rawBakeryWBNBValue[1])
-        .shiftedBy(-tradingToken.decimals);
-      const bakeryWBNBValueBN = await new BigNumber(rawBakeryWBNBValue[1]);
-
+      const bakeryWBNBValueBN = await rawBakeryWBNBValue[1];
 
       let bUSDAmount = shiftedBUSDBorrowAmount;
-      let wBNBAmount = apeWBNBValueBN;
-
-
-
-      const bakeryWBNBResults = {
-        buy: new BigNumber(((bUSDAmount / bakeryBUSDValueBN) * wBNBAmount))
-          .shiftedBy(-tradingToken.decimals)
-          .toString(),
-        sell: new BigNumber(((bakeryWBNBValueBN / wBNBAmount) * wBNBAmount))
-          .shiftedBy(-tradingToken.decimals)
-          .toString()
-      }
+      let wBNBAmount = shiftedWBNBBorrowAmount;
 
       const bakeryBUSDResults = {
-        buy: new BigNumber(((wBNBAmount / bakeryWBNBValueBN) * bUSDAmount))
-          .shiftedBy(-stableToken.decimals)
-          .toString(),
-        sell: new BigNumber(((bakeryBUSDValueBN / bUSDAmount) * bUSDAmount))
-          .shiftedBy(-stableToken.decimals)
-          .toString()
+        buy: (bUSDAmount / bakeryWBNBValueBN) * wBNBAmount,
+        sell: (bakeryBUSDValueBN / wBNBAmount) * wBNBAmount
       }
 
-      const apeWBNBResults = {
-        buy: new BigNumber(((bUSDAmount / apeBUSDValueBN) * wBNBAmount))
-          .shiftedBy(-tradingToken.decimals)
-          .toString(),
-        sell: new BigNumber(((apeWBNBValueBN / wBNBAmount) * wBNBAmount))
-          .shiftedBy(-tradingToken.decimals)
-          .toString()
+      const bakeryWBNBResults = {
+        buy: (wBNBAmount / bakeryBUSDValueBN) * bUSDAmount,
+        sell: (bakeryWBNBValueBN / bUSDAmount) * bUSDAmount
       }
 
       const apeBUSDResults = {
-        buy: new BigNumber(((wBNBAmount / apeWBNBValueBN) * bUSDAmount))
-          .shiftedBy(-stableToken.decimals)
-          .toString(),
-        sell: new BigNumber(((apeBUSDValueBN / bUSDAmount) * bUSDAmount))
-          .shiftedBy(-stableToken.decimals)
-          .toString()
+        buy: (bUSDAmount / apeWBNBValueBN) * wBNBAmount,
+        sell: (apeBUSDValueBN / wBNBAmount) * wBNBAmount
       }
 
+      const apeWBNBResults = {
+        buy: (wBNBAmount / apeBUSDValueBN) * bUSDAmount,
+        sell: (apeWBNBValueBN / bUSDAmount) * bUSDAmount
+      }
 
-      const bakeryPaybackCalcBUSD = (bakeryWBNBResults.buy * 1000) / 996;
-      const bakeryPaybackBUSD = new BigNumber(bakeryPaybackCalcBUSD).shiftedBy(stableToken.decimals)
-      const bakeryPaybackBUSDFee = bakeryPaybackCalcBUSD - bakeryWBNBResults.buy;
+      console.log(`BakerySwap ${wBNBAmount} WBNB/BUSD`);
+      console.log(bakeryWBNBResults);
 
-      const bakeryPaybackCalcWBNB = (bakeryBUSDResults.buy * 1000) / 996;
-      const bakeryPaybackWBNB = new BigNumber(bakeryPaybackCalcWBNB).shiftedBy(tradingToken.decimals);
-      const bakeryPaybackWBNBFee = bakeryPaybackCalcWBNB - bakeryBUSDResults.buy;
+      console.log(`ApeSwap ${wBNBAmount} WBNB/BUSD`);
+      console.log(apeWBNBResults);
 
-      const apePaybackCalcBUSD = (apeWBNBResults.buy * 1000) / 996;
-      const apePaybackBUSD = new BigNumber(apePaybackCalcBUSD).shiftedBy(stableToken.decimals);
-      const apePaybackBUSDFee = apePaybackCalcBUSD - apeWBNBResults.buy;
+      console.log(`BakerySwap ${bUSDAmount} BUSD/WBNB`);
+      console.log(bakeryBUSDResults);
 
-      const apePaybackCalcWBNB = (apeBUSDResults.buy * 1000) / 996;
-      const apePaybackWBNB = new BigNumber(apePaybackCalcWBNB).shiftedBy(tradingToken.decimals);
-      const apePaybackWBNBFee = apePaybackCalcWBNB - apeBUSDResults.buy;
+      console.log(`ApeSwap ${bUSDAmount} BUSD/WBNB`);
+      console.log(apeBUSDResults);
 
+      const bakeryWBNBPrice = (bakeryWBNBResults.buy + bakeryWBNBResults.sell) / borrowAmount / 2
+      const apeWBNBPrice = (apeWBNBResults.buy + apeWBNBResults.sell) / borrowAmount / 2
+
+      console.log('Bakery w bnb price', bakeryWBNBPrice )
+      console.log('Ape w bnb price', apeWBNBPrice )
+
+      const bakeryPaybackCalcBUSD = (bakeryBUSDResults.buy / 0.997);
+      const bakeryPaybackBUSD = bakeryPaybackCalcBUSD.toString()
+      const bakeryPaybackBUSDFee = bakeryPaybackCalcBUSD  - bakeryBUSDResults.buy;
+
+
+      console.log('Bakery paypack calc busd', {
+        bakeryPaybackCalcBUSD: ((bakeryPaybackCalcBUSD) / oneWei),
+        bakeryPaybackBUSDFee: ((bakeryPaybackBUSDFee) / oneWei)
+      })
+      const bakeryPaybackCalcWBNB = (bakeryWBNBResults.buy / 0.997);
+      const bakeryPaybackWBNB = bakeryPaybackCalcWBNB.toString();
+      const bakeryPaybackWBNBFee = (bakeryPaybackCalcWBNB  - bakeryWBNBResults.buy);
+      console.log('Bakery paypack calc wbnb', {
+        bakeryPaybackCalcWBNB:bakeryPaybackCalcWBNB,
+        bakeryPaybackWBNBFee:bakeryPaybackWBNBFee
+      })
+      const apePaybackCalcBUSD = (apeBUSDResults.buy / 0.997);
+      const apePaybackBUSD = apePaybackCalcBUSD.toString();
+      const apePaybackBUSDFee = apePaybackCalcBUSD - apeBUSDResults.buy;
+      console.log('Ape paypack calc busd', {
+        apePaybackCalcBUSD:apePaybackCalcBUSD,
+        apePaybackBUSDFee:apePaybackBUSDFee
+      })
+      const apePaybackCalcWBNB = (apeWBNBResults.buy / 0.997);
+      const apePaybackWBNB = apePaybackCalcWBNB.toString();
+      const apePaybackWBNBFee = (apePaybackCalcWBNB - apeWBNBResults.buy);
+      console.log('Ape paypack calc wbnb', {
+        apePaybackCalcWBNB:apePaybackCalcWBNB,
+        apePaybackWBNBFee:apePaybackWBNBFee
+      })
 
       const gasPrice = await web3.eth.getGasPrice();
-      const txCost = 330000 * parseInt(gasPrice);
+      console.log('gas price', gasPrice)
+      const txCost = ((330000 * parseInt(gasPrice))) ;
+      console.log('txcost',  (((330000 * parseInt(gasPrice)))) / oneWei)
 
 
-      const currentBNBPrice = (Number(apeWBNBResults.buy) + Number(apeWBNBResults.sell)) / 2;
 
-      const bakeryToApeWBNBProfit = new BigNumber(wBNBAmount * (Number(bakeryWBNBResults.sell) - Number(apeWBNBResults.buy))
-        - (new BigNumber(txCost).shiftedBy(-tradingToken.decimals) * Number(currentBNBPrice) + Number(bakeryPaybackWBNBFee)))
-        .shiftedBy(-tradingToken.decimals).toString();
 
-      const bakeryToApeBUSDProfit = new BigNumber(bUSDAmount * (Number(bakeryBUSDResults.sell) - Number(apeBUSDResults.buy))
-        - (new BigNumber(txCost).shiftedBy(-tradingToken.decimals) * Number(currentBNBPrice) + Number(bakeryPaybackBUSDFee)))
-        .shiftedBy(-stableToken.decimals).toString();
+      const bakeryToApeWBNBProfit = ((bakeryWBNBResults.buy - apeWBNBResults.sell - txCost - bakeryPaybackWBNBFee) / oneWei)
+      const bakeryToApeBUSDProfit = ((bakeryBUSDResults.buy - apeBUSDResults.sell - txCost - bakeryPaybackBUSDFee) / oneWei)
+      const apeToBakeryWBNBProfit = ((apeWBNBResults.buy - bakeryWBNBResults.sell - txCost - apePaybackWBNBFee) / oneWei)
+      const apeToBakeryBUSDProfit = ((apeBUSDResults.buy - bakeryBUSDResults.sell - txCost - apePaybackBUSDFee) / oneWei)
 
-      const apeToBakeryWBNBProfit = new BigNumber(wBNBAmount * (Number(apeWBNBResults.sell) - Number(bakeryWBNBResults.buy))
-        - (new BigNumber(txCost).shiftedBy(-tradingToken.decimals) * Number(currentBNBPrice) + Number(apePaybackWBNBFee)))
-        .shiftedBy(-stableToken.decimals).toString();
-
-      const apeToBakeryBUSDProfit = new BigNumber(bUSDAmount * (Number(apeBUSDResults.sell) - Number(bakeryBUSDResults.buy))
-        - (new BigNumber(txCost).shiftedBy(-tradingToken.decimals) * Number(currentBNBPrice) + Number(apePaybackBUSDFee)))
-        .shiftedBy(-tradingToken.decimals).toString();
-
-      console.log(apeToBakeryBUSDProfit)
 
       if (bakeryToApeWBNBProfit > 0 && bakeryToApeWBNBProfit > apeToBakeryWBNBProfit) {
-        console.log("Arb opportunity found!");
-        console.log(pad(colors.yellow('Current Time:'), 30),
-          moment().format('ll') + ' ' + moment().format('LTS'));
-        console.log(`Flashloan WBNB on Bakeryswap at ${bakeryWBNBResults.buy} `);
-        console.log(`Sell WBNB on Apeswap at ${apeWBNBResults.sell} `);
+        console.log("Arbitrage opportunity found!");
+        console.log(`Flashloan WBNB on Bakeryswap at ${((bakeryWBNBResults.buy) / oneWei)} `);
+        console.log(`Sell WBNB on Apeswap at ${((apeWBNBResults.sell) / oneWei)} `);
+        console.log(`Expected Flashswap Cost ${((apePaybackBUSDFee) / oneWei)}`);
+        console.log(`Estimated Gas Cost: ${((txCost) / oneWei)}`);
         console.log(`Expected profit: ${bakeryToApeWBNBProfit} WBNB`);
 
-        // let tx = flashloan.methods.startArbitrage(
-        //   addresses.tokens.WBNB, //token1
-        //   addresses.tokens.BUSD, //token2
-        //   amountInWBNB.toString(), //amount0
-        //   0, //amount1
-        //   addresses.bakerySwap.factory, //bakeryfactory
-        //   addresses.apeSwap.router, //aperouter
-        //   apePaybackBusd.toString()
-        // );
-        //
-        // const data = tx.encodeABI();
-        // const txData = {
-        //   from: admin,
-        //   to: flashloan.options.address,
-        //   data,
-        //   gas: "330000",
-        //   gasPrice: gasPrice,
-        // };
-        // const receipt = await web3.eth.sendTransaction(txData);
-        // console.log(`Transaction hash: ${receipt.transactionHash}`);
-        // console.log("Waiting a block as to not redo transaction in same block");
-        sleep(3000);
+        // let slippage = Number(0.02) * wBNBAmount;
+        // let wBNBAmountMinusSlippage = wBNBAmount - slippage;
+
+        let tx = flashloan.methods.startArbitrage(
+          tradingToken.address, //token1
+          stableToken.address, //token2
+          wBNBAmount, //amount0
+          0, //amount1
+          mainnet.bakeryswap.factory.address, //bakeryfactory
+          mainnet.apeswap.router.address, //aperouter
+          apePaybackCalcBUSD
+        );
+
+        const data = tx.encodeABI();
+        const txData = {
+          from: admin.address,
+          to: flashloan.options.address,
+          data,
+          gas: "330000",
+          gasPrice: gasPrice,
+        };
+        const receipt = await web3.eth.sendTransaction(txData);
+        console.log(`Transaction hash: ${receipt.transactionHash}`);
+        console.log("Waiting a block as to not redo transaction in same block");
+        await sleep(15000)
       }
       if (apeToBakeryWBNBProfit > 0 && apeToBakeryWBNBProfit > bakeryToApeWBNBProfit) {
-        console.log("Arb opportunity found!");
-        console.log(pad(colors.yellow('Current Time:'), 30),
-          moment().format('ll') + ' ' + moment().format('LTS'));
-        console.log(`Buy WBNB from Apeswap at ${apeWBNBResults.buy} `);
-        console.log(`Sell WBNB from BakerySwap at ${bakeryWBNBResults.sell}`);
+        console.log("Arbitrage opportunity found!");
+        console.log(`Buy WBNB from Apeswap at ${((apeWBNBResults.buy) / oneWei)} `);
+        console.log(`Sell WBNB from BakerySwap at ${((bakeryWBNBResults.sell) / oneWei)}`);
+        console.log(`Expected Flashswap Cost ${((bakeryPaybackBUSDFee) / oneWei)}`);
+        console.log(`Estimated Gas Cost: ${((txCost) / oneWei)}`);
         console.log(`Expected profit: ${apeToBakeryWBNBProfit} WBNB`);
 
-        // let tx = flashloan.methods.startArbitrage(
-        //   addresses.tokens.WBNB, //token1
-        //   addresses.tokens.BUSD, //token2
-        //   amountInWBNB.toString(), //amount0
-        //   0, //amount1
-        //   addresses.apeSwap.factory, //apefactory
-        //   addresses.bakerySwap.router, // bakeryrouter
-        //   bakerySwapPaybackBusd.toString()
-        // );
-        //
-        // const data = tx.encodeABI();
-        // const txData = {
-        //   from: admin,
-        //   to: flashloan.options.address,
-        //   data,
-        //   gas: "330000",
-        //   gasPrice: gasPrice,
-        // };
-        // const receipt = await web3.eth.sendTransaction(txData);
-        // console.log(`Transaction hash: ${receipt.transactionHash}`);
-        // console.log("Waiting a block as to not redo transaction in same block");
-        sleep(3000);
+        // let slippage = Number(0.02) * wBNBAmount;
+        // let wBNBAmountMinusSlippage = wBNBAmount - slippage;
+
+        let tx = flashloan.methods.startArbitrage(
+          tradingToken.address, //token1
+          stableToken.address, //token2
+          wBNBAmount, //amount0
+          0, //amount1
+          mainnet.apeswap.factory.address, //apefactory
+          mainnet.bakeryswap.router.address, // bakeryrouter
+          bakeryPaybackCalcBUSD
+        );
+
+        const data = tx.encodeABI();
+        const txData = {
+          from: admin.address,
+          to: flashloan.options.address,
+          data,
+          gas: "330000",
+          gasPrice: gasPrice,
+        };
+        const receipt = await web3.eth.sendTransaction(txData);
+        console.log(`Transaction hash: ${receipt.transactionHash}`);
+        console.log("Waiting a block as to not redo transaction in same block");
+        await sleep(15000)
       }
       if (bakeryToApeBUSDProfit > 0 && bakeryToApeBUSDProfit > apeToBakeryBUSDProfit) {
-        console.log("Arb opportunity found!");
-        console.log(pad(colors.yellow('Current Time:'), 30),
-          moment().format('ll') + ' ' + moment().format('LTS'));
-        console.log(`Flashloan BUSD on Bakeryswap at ${bakeryBUSDResults.buy} `);
-        console.log(`Sell BUSD on ApeSwap at ${apeBUSDResults.sell} `);
+        console.log("Arbitrage opportunity found!");
+        console.log(`Flashloan BUSD on Bakeryswap at ${((bakeryBUSDResults.buy) / oneWei)} `);
+        console.log(`Sell BUSD on ApeSwap at ${((apeBUSDResults.sell) / oneWei)} `);
+        console.log(`Expected Flashswap Cost ${((bakeryPaybackWBNBFee) / oneWei)}`);
+        console.log(`Estimated Gas Cost: ${((txCost) / oneWei)}`);
         console.log(`Expected profit: ${bakeryToApeBUSDProfit} BUSD`);
 
-        // let tx = flashloan.methods.startArbitrage(
-        //   addresses.tokens.BUSD, //token1
-        //   addresses.tokens.WBNB, //token2
-        //   amountInBUSD.toString(), //amount0
-        //   0, //amount1
-        //   addresses.bakerySwap.factory, //bakeryfactory
-        //   addresses.apeSwap.router, //aperouter
-        //   apePaybackWbnb.toString()
-        // );
-        //
-        // const data = tx.encodeABI();
-        // const txData = {
-        //   from: admin,
-        //   to: flashloan.options.address,
-        //   data,
-        //   gas: "330000",
-        //   gasPrice: gasPrice,
-        // };
-        // const receipt = await web3.eth.sendTransaction(txData);
-        // console.log(`Transaction hash: ${receipt.transactionHash}`);
-        // console.log("Waiting a block as to not redo transaction in same block");
-        sleep(3000);
+        // let slippage = Number(0.02) * bUSDAmount;
+        // let bUSDAmountMinusSlippage = bUSDAmount - slippage;
+
+        let tx = flashloan.methods.startArbitrage(
+          stableToken.address, //token1
+          tradingToken.address, //token2
+          bUSDAmount, //amount0
+          0, //amount1
+          mainnet.bakeryswap.factory.address, //bakeryfactory
+          mainnet.apeswap.router.address, //aperouter
+          apePaybackCalcWBNB
+        );
+
+        const data = tx.encodeABI();
+        const txData = {
+          from: admin.address,
+          to: flashloan.options.address,
+          data,
+          gas: "330000",
+          gasPrice: gasPrice,
+        };
+        const receipt = await web3.eth.sendTransaction(txData);
+        console.log(`Transaction hash: ${receipt.transactionHash}`);
+        console.log("Waiting a block as to not redo transaction in same block");
+        await sleep(15000)
       }
       if (apeToBakeryBUSDProfit > 0 && apeToBakeryBUSDProfit > bakeryToApeBUSDProfit) {
-        console.log("Arb opportunity found!");
-        console.log(pad(colors.yellow('Current Time:'), 30),
-          moment().format('ll') + ' ' + moment().format('LTS'));
-        console.log(`Flashloan BUSD on Apeswap at ${apeBUSDResults.buy} `);
-        console.log(`Sell BUSD on Bakeryswap at ${bakeryBUSDResults.sell} `);
+        console.log("Arbitrage opportunity found!");
+        console.log(`Flashloan BUSD on Apeswap at ${((apeBUSDResults.buy) / oneWei)} `);
+        console.log(`Sell BUSD on Bakeryswap at ${((bakeryBUSDResults.sell) / oneWei)} `);
+        console.log(`Expected Flashswap Cost ${((bakeryPaybackWBNBFee) / oneWei)}`);
+        console.log(`Estimated Gas Cost: ${((txCost) / oneWei)}`);
         console.log(`Expected profit: ${apeToBakeryBUSDProfit} BUSD`);
 
-        // let tx = flashloan.methods.startArbitrage(
-        //   addresses.tokens.BUSD, //token1
-        //   addresses.tokens.WBNB, //token2
-        //   amountInBUSD.toString(), //amount0
-        //   0, //amount1
-        //   addresses.bakerySwap.factory, //bakeryfactory
-        //   addresses.apeSwap.router, //aperouter
-        //   bakerySwapPaybackWbnb.toString()
-        // );
-        //
-        // const data = tx.encodeABI();
-        // const txData = {
-        //   from: admin,
-        //   to: flashloan.options.address,
-        //   data,
-        //   gas: "330000",
-        //   gasPrice: gasPrice,
-        // };
-        // const receipt = await web3.eth.sendTransaction(txData);
-        // console.log(`Transaction hash: ${receipt.transactionHash}`);
-        // console.log("Waiting a block as to not redo transaction in same block");
-        sleep(3000);
-      }
+        // let slippage = Number(0.02) * bUSDAmount;
+        // let bUSDAmountMinusSlippage = bUSDAmount - slippage;
 
+        let tx = flashloan.methods.startArbitrage(
+          stableToken.address, //token1
+          tradingToken.address, //token2
+          bUSDAmount, //amount0
+          0, //amount1
+          mainnet.bakeryswap.factory.address, //bakeryfactory
+          mainnet.apeswap.router.address, //aperouter
+          bakeryPaybackCalcWBNB
+        );
+
+        const data = tx.encodeABI();
+        const txData = {
+          from: admin.address,
+          to: flashloan.options.address,
+          data,
+          gas: "330000",
+          gasPrice: gasPrice,
+        };
+        const receipt = await web3.eth.sendTransaction(txData);
+        console.log(`Transaction hash: ${receipt.transactionHash}`);
+        console.log("Waiting a block as to not redo transaction in same block");
+        await sleep(15000)
+      }
 
     })
     .on('error', error => {

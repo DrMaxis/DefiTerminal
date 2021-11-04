@@ -13,15 +13,15 @@ function startBinanceArbitrage(data) {
         runApeBakeryArbitrage(data);
       }
       if (data.sellingExchange === 'Pancakeswap') {
-        runApePancakeArbitrage(data);
+        runPancakeApeArbitrage(data);
       }
       break;
     case 'Bakeryswap':
       if (data.sellingExchange === 'Apeswap') {
-        runBakeryApeArbitrage(data);
+        runApeBakeryArbitrage(data);
       }
       if (data.sellingExchange === 'Pancakeswap') {
-        runBakeryPancakeArbitrage(data);
+        runPancakeBakeryArbitrage(data);
       }
       break;
     case 'Pancakeswap':
@@ -72,78 +72,6 @@ function startEthereumArbitrage(data) {
 
 function runApeBakeryArbitrage(data) {
   const process = arbitrageProcess.fork(__dirname + '/binance/ApeBakeryArbitrage.js', [], {silent: true});
-  process.send(data)
-  process.stdout.on('data', function (standardOutData) {
-    console.log(standardOutData.toString());
-  });
-
-  process.stderr.on('data', function (standardErrorData) {
-    if (standardErrorData.toString().includes('Warning:')) {
-    } else {
-      console.log('Error: ' + standardErrorData);
-    }
-  });
-
-  process.on('message', function (response) {
-    console.log('response:', response)
-    //process.send(data = false);
-  });
-
-  process.on('close', function (code, data) {
-    console.log('Done. Closing ' + code);
-  });
-}
-
-function runApePancakeArbitrage(data) {
-  const process = arbitrageProcess.fork(__dirname + '/binance/ApePancakeArbitrage.js', [], {silent: true});
-  process.send(data)
-  process.stdout.on('data', function (standardOutData) {
-    console.log(standardOutData.toString());
-  });
-
-  process.stderr.on('data', function (standardErrorData) {
-    if (standardErrorData.toString().includes('Warning:')) {
-    } else {
-      console.log('Error: ' + standardErrorData);
-    }
-  });
-
-  process.on('message', function (response) {
-    console.log('response:', response)
-    //process.send(data = false);
-  });
-
-  process.on('close', function (code, data) {
-    console.log('Done. Closing ' + code);
-  });
-}
-
-function runBakeryApeArbitrage(data) {
-  const process = arbitrageProcess.fork(__dirname + '/binance/BakeryApeArbitrage.js', [], {silent: true});
-  process.send(data)
-  process.stdout.on('data', function (standardOutData) {
-    console.log(standardOutData.toString());
-  });
-
-  process.stderr.on('data', function (standardErrorData) {
-    if (standardErrorData.toString().includes('Warning:')) {
-    } else {
-      console.log('Error: ' + standardErrorData);
-    }
-  });
-
-  process.on('message', function (response) {
-    console.log('response:', response)
-    //process.send(data = false);
-  });
-
-  process.on('close', function (code, data) {
-    console.log('Done. Closing ' + code);
-  });
-}
-
-function runBakeryPancakeArbitrage(data) {
-  const process = arbitrageProcess.fork(__dirname + '/binance/BakeryPancakeArbitrage.js', [], {silent: true});
   process.send(data)
   process.stdout.on('data', function (standardOutData) {
     console.log(standardOutData.toString());

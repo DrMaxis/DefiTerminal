@@ -58,15 +58,15 @@ module.exports = function (deployer) {
   // );
 
 
-  // deployer.deploy(
-  //   PancakeApeArbitrage,
-  //   mainnet.pancakeswap.factory.address, //pancakefactory
-  //   mainnet.apeswap.factory.address, //apefactory
-  //   mainnet.tokens.Binance.wbnb.address, //WBNB Token
-  //   mainnet.pancakeswap.router.address, //pancakerouter
-  //   mainnet.apeswap.router.address, //aperouter
-  //   process.env.ACCOUNT,
-  // );
+  deployer.deploy(
+    PancakeApeArbitrage,
+    mainnet.pancakeswap.factory.address, //pancakefactory
+    mainnet.apeswap.factory.address, //apefactory
+    mainnet.tokens.Binance.wbnb.address, //WBNB Token
+    mainnet.pancakeswap.router.address, //pancakerouter
+    mainnet.apeswap.router.address, //aperouter
+    process.env.ACCOUNT,
+  );
 
 
   // deployer.deploy(
