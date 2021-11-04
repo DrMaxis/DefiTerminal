@@ -1,6 +1,5 @@
 require('dotenv').config();
 const Web3 = require('web3');
-const BigNumber = require('bignumber.js');
 const {mainnet} = require('../../addresses')
 const pad = require("pad");
 const colors = require("colors");
@@ -24,17 +23,21 @@ function sleep(ms) {
 
 async function arbitrage(data) {
   const borrowAmount = data.borrowAmount;
-  const admin  = Web3.eth.accounts.wallet.add(process.env.PRIVATE_KEY);
+
   const oneWei = ( 10 ** 18 );
-  let web3, networkId, flashloan;
+
+  let admin, web3, networkId, flashloan;
   
   if(data.network === 'Local'){
     web3 = new Web3(new Web3.providers.WebsocketProvider('http://127.0.0.1:8545'));
+    admin  = web3.eth.accounts.wallet.add(process.env.PRIVATE_KEY);
     flashloan = new web3.eth.Contract(PancakeBakeryFlashloan.abi, PancakeBakeryFlashloan.networks[56].address);
   } else {
     web3 = new Web3(new Web3.providers.WebsocketProvider(process.env.MORALIAS_BSC_MAINNET_WSS_URL));
+    admin  = web3.eth.accounts.wallet.add(process.env.PRIVATE_KEY);
     networkId = await web3.eth.net.getId();
     flashloan = new web3.eth.Contract(PancakeBakeryFlashloan.abi, PancakeBakeryFlashloan.networks[networkId].address);
+
   }
   
   const bakeryswap = {
@@ -76,9 +79,7 @@ async function arbitrage(data) {
 
 
       const shiftedWBNBBorrowAmount = web3.utils.toBN(web3.utils.toWei(borrowAmount))
-      console.log(web3.utils.fromWei(shiftedWBNBBorrowAmount))
 
-      console.log(shiftedWBNBBorrowAmount.toString());
       // get BUSD AMOUNT
       const rawPancakeBUSDValue = await pancakeswap.router.methods
         .getAmountsOut(shiftedWBNBBorrowAmount,
@@ -140,61 +141,27 @@ async function arbitrage(data) {
         sell: (pancakeWBNBValueBN / bUSDAmount) * bUSDAmount
       }
 
-      console.log(`BakerySwap ${wBNBAmount} WBNB/BUSD`);
-      console.log(bakeryWBNBResults);
-
-      console.log(`PancakeSwap ${wBNBAmount} WBNB/BUSD`);
-      console.log(pancakeWBNBResults);
-
-      console.log(`BakerySwap ${bUSDAmount} BUSD/WBNB`);
-      console.log(bakeryBUSDResults);
-
-      console.log(`PancakeSwap ${bUSDAmount} BUSD/WBNB`);
-      console.log(pancakeBUSDResults);
-
       const bakeryWBNBPrice = (bakeryWBNBResults.buy + bakeryWBNBResults.sell) / borrowAmount / 2
       const pancakeWBNBPrice = (pancakeWBNBResults.buy + pancakeWBNBResults.sell) / borrowAmount / 2
-
-      console.log('Bakery w bnb price', bakeryWBNBPrice )
-      console.log('Pancake w bnb price', pancakeWBNBPrice )
 
       const bakeryPaybackCalcBUSD = (bakeryBUSDResults.buy / 0.997);
       const bakeryPaybackBUSD = bakeryPaybackCalcBUSD.toString()
       const bakeryPaybackBUSDFee = bakeryPaybackCalcBUSD  - bakeryBUSDResults.buy;
 
-
-      console.log('Bakery paypack calc busd', {
-        bakeryPaybackCalcBUSD: ((bakeryPaybackCalcBUSD) / oneWei),
-        bakeryPaybackBUSDFee: ((bakeryPaybackBUSDFee) / oneWei)
-      })
       const bakeryPaybackCalcWBNB = (bakeryWBNBResults.buy / 0.997);
       const bakeryPaybackWBNB = bakeryPaybackCalcWBNB.toString();
       const bakeryPaybackWBNBFee = (bakeryPaybackCalcWBNB  - bakeryWBNBResults.buy);
-      console.log('Bakery paypack calc wbnb', {
-        bakeryPaybackCalcWBNB:bakeryPaybackCalcWBNB,
-        bakeryPaybackWBNBFee:bakeryPaybackWBNBFee
-      })
+
       const pancakePaybackCalcBUSD = (pancakeBUSDResults.buy / 0.997);
       const pancakePaybackBUSD = pancakePaybackCalcBUSD.toString();
       const pancakePaybackBUSDFee = pancakePaybackCalcBUSD - pancakeBUSDResults.buy;
-      console.log('Pancake paypack calc busd', {
-        pancakePaybackCalcBUSD:pancakePaybackCalcBUSD,
-        pancakePaybackBUSDFee:pancakePaybackBUSDFee
-      })
+
       const pancakePaybackCalcWBNB = (pancakeWBNBResults.buy / 0.997);
       const pancakePaybackWBNB = pancakePaybackCalcWBNB.toString();
       const pancakePaybackWBNBFee = (pancakePaybackCalcWBNB - pancakeWBNBResults.buy);
-      console.log('Pancake paypack calc wbnb', {
-        pancakePaybackCalcWBNB:pancakePaybackCalcWBNB,
-        pancakePaybackWBNBFee:pancakePaybackWBNBFee
-      })
 
       const gasPrice = await web3.eth.getGasPrice();
-      console.log('gas price', gasPrice)
       const txCost = ((330000 * parseInt(gasPrice))) ;
-      console.log('txcost',  (((330000 * parseInt(gasPrice)))) / oneWei)
-
-
 
 
       const bakeryToPancakeWBNBProfit = ((bakeryWBNBResults.buy - pancakeWBNBResults.sell - txCost - bakeryPaybackWBNBFee) / oneWei)
@@ -205,10 +172,12 @@ async function arbitrage(data) {
 
       if (bakeryToPancakeWBNBProfit > 0 && bakeryToPancakeWBNBProfit > pancakeToBakeryWBNBProfit) {
         console.log("Arbitrage opportunity found!");
+        console.log(pad(colors.yellow('Current Time:'), 30),
+          moment().format('ll') + ' ' + moment().format('LTS'));
         console.log(`Flashloan WBNB on Bakeryswap at ${((bakeryWBNBResults.buy) / oneWei)} `);
         console.log(`Sell WBNB on Pancakeswap at ${((pancakeWBNBResults.sell) / oneWei)} `);
-        console.log(`Expected Flashswap Cost ${((pancakePaybackBUSDFee) / oneWei)}`);
-        console.log(`Estimated Gas Cost: ${((txCost) / oneWei)}`);
+        console.log(`Expected Flashswap Cost ${((pancakePaybackBUSDFee) / oneWei)} USD`);
+        console.log(`Estimated Gas Cost: ${((txCost) / oneWei)} BNB`);
         console.log(`Expected profit: ${bakeryToPancakeWBNBProfit} WBNB`);
 
         // let slippage = Number(0.02) * wBNBAmount;
@@ -239,10 +208,12 @@ async function arbitrage(data) {
       }
       if (pancakeToBakeryWBNBProfit > 0 && pancakeToBakeryWBNBProfit > bakeryToPancakeWBNBProfit) {
         console.log("Arbitrage opportunity found!");
+        console.log(pad(colors.yellow('Current Time:'), 30),
+          moment().format('ll') + ' ' + moment().format('LTS'));
         console.log(`Buy WBNB from Pancakeswap at ${((pancakeWBNBResults.buy) / oneWei)} `);
         console.log(`Sell WBNB from BakerySwap at ${((bakeryWBNBResults.sell) / oneWei)}`);
-        console.log(`Expected Flashswap Cost ${((bakeryPaybackBUSDFee) / oneWei)}`);
-        console.log(`Estimated Gas Cost: ${((txCost) / oneWei)}`);
+        console.log(`Expected Flashswap Cost ${((bakeryPaybackBUSDFee) / oneWei)} USD`);
+        console.log(`Estimated Gas Cost: ${((txCost) / oneWei)} BNB`);
         console.log(`Expected profit: ${pancakeToBakeryWBNBProfit} WBNB`);
 
         // let slippage = Number(0.02) * wBNBAmount;
@@ -273,10 +244,12 @@ async function arbitrage(data) {
       }
       if (bakeryToPancakeBUSDProfit > 0 && bakeryToPancakeBUSDProfit > pancakeToBakeryBUSDProfit) {
         console.log("Arbitrage opportunity found!");
+        console.log(pad(colors.yellow('Current Time:'), 30),
+          moment().format('ll') + ' ' + moment().format('LTS'));
         console.log(`Flashloan BUSD on Bakeryswap at ${((bakeryBUSDResults.buy) / oneWei)} `);
         console.log(`Sell BUSD on PancakeSwap at ${((pancakeBUSDResults.sell) / oneWei)} `);
-        console.log(`Expected Flashswap Cost ${((bakeryPaybackWBNBFee) / oneWei)}`);
-        console.log(`Estimated Gas Cost: ${((txCost) / oneWei)}`);
+        console.log(`Expected Flashswap Cost ${((bakeryPaybackWBNBFee) / oneWei)} WBNB`);
+        console.log(`Estimated Gas Cost: ${((txCost) / oneWei)} BNB`);
         console.log(`Expected profit: ${bakeryToPancakeBUSDProfit} BUSD`);
 
         // let slippage = Number(0.02) * bUSDAmount;
@@ -307,10 +280,12 @@ async function arbitrage(data) {
       }
       if (pancakeToBakeryBUSDProfit > 0 && pancakeToBakeryBUSDProfit > bakeryToPancakeBUSDProfit) {
         console.log("Arbitrage opportunity found!");
+        console.log(pad(colors.yellow('Current Time:'), 30),
+          moment().format('ll') + ' ' + moment().format('LTS'));
         console.log(`Flashloan BUSD on Pancakeswap at ${((pancakeBUSDResults.buy) / oneWei)} `);
         console.log(`Sell BUSD on Bakeryswap at ${((bakeryBUSDResults.sell) / oneWei)} `);
-        console.log(`Expected Flashswap Cost ${((bakeryPaybackWBNBFee) / oneWei)}`);
-        console.log(`Estimated Gas Cost: ${((txCost) / oneWei)}`);
+        console.log(`Expected Flashswap Cost ${((bakeryPaybackWBNBFee) / oneWei)} WBNB`);
+        console.log(`Estimated Gas Cost: ${((txCost) / oneWei)} BNB`);
         console.log(`Expected profit: ${pancakeToBakeryBUSDProfit} BUSD`);
 
         // let slippage = Number(0.02) * bUSDAmount;
@@ -340,7 +315,6 @@ async function arbitrage(data) {
         await sleep(15000)
       }
 
-     
 
     })
     .on('error', error => {

@@ -1,7 +1,7 @@
 require('dotenv').config();
 const Web3 = require('web3');
 const {mainnet} = require('../../addresses')
-const PancakeApeFlashloan =require('../../../../build/contracts/PancakeApeArbitrage.json');
+const PancakeApeFlashloan = require('../../../../build/contracts/PancakeApeArbitrage.json');
 const pad = require("pad");
 const colors = require("colors");
 const moment = require("moment");
@@ -24,14 +24,15 @@ async function arbitrage(data) {
   const borrowAmount = data.borrowAmount;
   const oneWei = ( 10 ** 18 );
 
-  const admin  = Web3.eth.accounts.wallet.add(process.env.PRIVATE_KEY);
-  let web3, networkId, flashloan;
+  let admin, web3, networkId, flashloan;
 
   if(data.network === 'Local'){
     web3 = new Web3(new Web3.providers.WebsocketProvider('http://127.0.0.1:8545'));
      flashloan = new web3.eth.Contract(PancakeApeFlashloan.abi, PancakeApeFlashloan.networks[56].address);
+    admin  = web3.eth.accounts.wallet.add(process.env.PRIVATE_KEY);
   } else {
     web3 = new Web3(new Web3.providers.WebsocketProvider(process.env.MORALIAS_BSC_MAINNET_WSS_URL));
+    admin  = web3.eth.accounts.wallet.add(process.env.PRIVATE_KEY);
      networkId = await web3.eth.net.getId();
      flashloan = new web3.eth.Contract(PancakeApeFlashloan.abi, PancakeApeFlashloan.networks[networkId].address);
   }
@@ -165,16 +166,16 @@ async function arbitrage(data) {
         const apeToPancakeBUSDProfit = ((apeBUSDResults.buy - pancakeBUSDResults.sell - txCost - apePaybackBUSDFee) / oneWei)
         const pancakeToApeWBNBProfit = ((pancakeWBNBResults.buy - apeWBNBResults.sell - txCost - pancakePaybackWBNBFee) / oneWei)
         const pancakeToApeBUSDProfit = ((pancakeBUSDResults.buy - apeBUSDResults.sell - txCost - pancakePaybackBUSDFee) / oneWei)
-    
-       
+
+
         if (apeToPancakeWBNBProfit > 0 && apeToPancakeWBNBProfit > pancakeToApeWBNBProfit) {
           console.log("Arbitrage opportunity found!");
           console.log(pad(colors.yellow('Current Time:'), 30),
             moment().format('ll') + ' ' + moment().format('LTS'));
           console.log(`Flashloan WBNB on Apeswap at ${((apeWBNBResults.buy) / oneWei)} `);
           console.log(`Sell WBNB on Pancakeswap at ${((pancakeWBNBResults.sell) / oneWei)} `);
-          console.log(`Expected Flashswap Cost ${((pancakePaybackBUSDFee) / oneWei)}`);
-          console.log(`Estimated Gas Cost: ${((txCost) / oneWei)}`);
+          console.log(`Expected Flashswap Cost ${((pancakePaybackBUSDFee) / oneWei)} USD`);
+          console.log(`Estimated Gas Cost: ${((txCost) / oneWei)} BNB`);
           console.log(`Expected profit: ${apeToPancakeWBNBProfit} WBNB`);
 
           // let slippage = Number(0.02) * wBNBAmount;
@@ -209,8 +210,8 @@ async function arbitrage(data) {
             moment().format('ll') + ' ' + moment().format('LTS'));
           console.log(`Buy WBNB from Pancakeswap at ${((pancakeWBNBResults.buy) / oneWei)} `);
           console.log(`Sell WBNB from ApeSwap at ${((apeWBNBResults.sell) / oneWei)}`);
-          console.log(`Expected Flashswap Cost ${((apePaybackBUSDFee) / oneWei)}`);
-          console.log(`Estimated Gas Cost: ${((txCost) / oneWei)}`);
+          console.log(`Expected Flashswap Cost ${((apePaybackBUSDFee) / oneWei)} USD`);
+          console.log(`Estimated Gas Cost: ${((txCost) / oneWei)} BNB`);
           console.log(`Expected profit: ${pancakeToApeWBNBProfit} WBNB`);
 
           // let slippage = Number(0.02) * wBNBAmount;
@@ -245,8 +246,8 @@ async function arbitrage(data) {
             moment().format('ll') + ' ' + moment().format('LTS'));
           console.log(`Flashloan BUSD on Apeswap at ${((apeBUSDResults.buy) / oneWei)} `);
           console.log(`Sell BUSD on PancakeSwap at ${((pancakeBUSDResults.sell) / oneWei)} `);
-          console.log(`Expected Flashswap Cost ${((apePaybackWBNBFee) / oneWei)}`);
-          console.log(`Estimated Gas Cost: ${((txCost) / oneWei)}`);
+          console.log(`Expected Flashswap Cost ${((apePaybackWBNBFee) / oneWei)} BNB`);
+          console.log(`Estimated Gas Cost: ${((txCost) / oneWei)} BNB`);
           console.log(`Expected profit: ${apeToPancakeBUSDProfit} BUSD`);
 
           // let slippage = Number(0.02) * bUSDAmount;
@@ -281,8 +282,8 @@ async function arbitrage(data) {
             moment().format('ll') + ' ' + moment().format('LTS'));
           console.log(`Flashloan BUSD on Pancakeswap at ${((pancakeBUSDResults.buy) / oneWei)} `);
           console.log(`Sell BUSD on Apeswap at ${((apeBUSDResults.sell) / oneWei)} `);
-          console.log(`Expected Flashswap Cost ${((apePaybackWBNBFee) / oneWei)}`);
-          console.log(`Estimated Gas Cost: ${((txCost) / oneWei)}`);
+          console.log(`Expected Flashswap Cost ${((apePaybackWBNBFee) / oneWei)} BNB`);
+          console.log(`Estimated Gas Cost: ${((txCost) / oneWei)} BNB`);
           console.log(`Expected profit: ${pancakeToApeBUSDProfit} BUSD`);
 
           // let slippage = Number(0.02) * bUSDAmount;

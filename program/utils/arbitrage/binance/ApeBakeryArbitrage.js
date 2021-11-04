@@ -1,6 +1,5 @@
 require('dotenv').config();
 const Web3 = require('web3');
-const BigNumber = require('bignumber.js');
 const {mainnet} = require('../../addresses')
 const pad = require("pad");
 const colors = require("colors");
@@ -76,7 +75,6 @@ async function arbitrage(data) {
 
       const shiftedWBNBBorrowAmount = web3.utils.toBN(web3.utils.toWei(borrowAmount))
 
-      console.log(shiftedWBNBBorrowAmount.toString());
       // get BUSD AMOUNT
       const rawApeBUSDValue = await apeswap.router.methods
         .getAmountsOut(shiftedWBNBBorrowAmount,
@@ -138,62 +136,29 @@ async function arbitrage(data) {
         sell: (apeWBNBValueBN / bUSDAmount) * bUSDAmount
       }
 
-      console.log(`BakerySwap ${wBNBAmount} WBNB/BUSD`);
-      console.log(bakeryWBNBResults);
-
-      console.log(`ApeSwap ${wBNBAmount} WBNB/BUSD`);
-      console.log(apeWBNBResults);
-
-      console.log(`BakerySwap ${bUSDAmount} BUSD/WBNB`);
-      console.log(bakeryBUSDResults);
-
-      console.log(`ApeSwap ${bUSDAmount} BUSD/WBNB`);
-      console.log(apeBUSDResults);
 
       const bakeryWBNBPrice = (bakeryWBNBResults.buy + bakeryWBNBResults.sell) / borrowAmount / 2
       const apeWBNBPrice = (apeWBNBResults.buy + apeWBNBResults.sell) / borrowAmount / 2
 
-      console.log('Bakery w bnb price', bakeryWBNBPrice )
-      console.log('Ape w bnb price', apeWBNBPrice )
 
       const bakeryPaybackCalcBUSD = (bakeryBUSDResults.buy / 0.997);
       const bakeryPaybackBUSD = bakeryPaybackCalcBUSD.toString()
       const bakeryPaybackBUSDFee = bakeryPaybackCalcBUSD  - bakeryBUSDResults.buy;
 
-
-      console.log('Bakery paypack calc busd', {
-        bakeryPaybackCalcBUSD: ((bakeryPaybackCalcBUSD) / oneWei),
-        bakeryPaybackBUSDFee: ((bakeryPaybackBUSDFee) / oneWei)
-      })
       const bakeryPaybackCalcWBNB = (bakeryWBNBResults.buy / 0.997);
       const bakeryPaybackWBNB = bakeryPaybackCalcWBNB.toString();
       const bakeryPaybackWBNBFee = (bakeryPaybackCalcWBNB  - bakeryWBNBResults.buy);
-      console.log('Bakery paypack calc wbnb', {
-        bakeryPaybackCalcWBNB:bakeryPaybackCalcWBNB,
-        bakeryPaybackWBNBFee:bakeryPaybackWBNBFee
-      })
+
       const apePaybackCalcBUSD = (apeBUSDResults.buy / 0.997);
       const apePaybackBUSD = apePaybackCalcBUSD.toString();
       const apePaybackBUSDFee = apePaybackCalcBUSD - apeBUSDResults.buy;
-      console.log('Ape paypack calc busd', {
-        apePaybackCalcBUSD:apePaybackCalcBUSD,
-        apePaybackBUSDFee:apePaybackBUSDFee
-      })
+
       const apePaybackCalcWBNB = (apeWBNBResults.buy / 0.997);
       const apePaybackWBNB = apePaybackCalcWBNB.toString();
       const apePaybackWBNBFee = (apePaybackCalcWBNB - apeWBNBResults.buy);
-      console.log('Ape paypack calc wbnb', {
-        apePaybackCalcWBNB:apePaybackCalcWBNB,
-        apePaybackWBNBFee:apePaybackWBNBFee
-      })
 
       const gasPrice = await web3.eth.getGasPrice();
-      console.log('gas price', gasPrice)
       const txCost = ((330000 * parseInt(gasPrice))) ;
-      console.log('txcost',  (((330000 * parseInt(gasPrice)))) / oneWei)
-
-
-
 
       const bakeryToApeWBNBProfit = ((bakeryWBNBResults.buy - apeWBNBResults.sell - txCost - bakeryPaybackWBNBFee) / oneWei)
       const bakeryToApeBUSDProfit = ((bakeryBUSDResults.buy - apeBUSDResults.sell - txCost - bakeryPaybackBUSDFee) / oneWei)
@@ -203,10 +168,12 @@ async function arbitrage(data) {
 
       if (bakeryToApeWBNBProfit > 0 && bakeryToApeWBNBProfit > apeToBakeryWBNBProfit) {
         console.log("Arbitrage opportunity found!");
+        console.log(pad(colors.yellow('Current Time:'), 30),
+          moment().format('ll') + ' ' + moment().format('LTS'));
         console.log(`Flashloan WBNB on Bakeryswap at ${((bakeryWBNBResults.buy) / oneWei)} `);
         console.log(`Sell WBNB on Apeswap at ${((apeWBNBResults.sell) / oneWei)} `);
-        console.log(`Expected Flashswap Cost ${((apePaybackBUSDFee) / oneWei)}`);
-        console.log(`Estimated Gas Cost: ${((txCost) / oneWei)}`);
+        console.log(`Expected Flashswap Cost ${((apePaybackBUSDFee) / oneWei)} USD`);
+        console.log(`Estimated Gas Cost: ${((txCost) / oneWei)} BNB`);
         console.log(`Expected profit: ${bakeryToApeWBNBProfit} WBNB`);
 
         // let slippage = Number(0.02) * wBNBAmount;
@@ -237,10 +204,12 @@ async function arbitrage(data) {
       }
       if (apeToBakeryWBNBProfit > 0 && apeToBakeryWBNBProfit > bakeryToApeWBNBProfit) {
         console.log("Arbitrage opportunity found!");
+        console.log(pad(colors.yellow('Current Time:'), 30),
+          moment().format('ll') + ' ' + moment().format('LTS'));
         console.log(`Buy WBNB from Apeswap at ${((apeWBNBResults.buy) / oneWei)} `);
         console.log(`Sell WBNB from BakerySwap at ${((bakeryWBNBResults.sell) / oneWei)}`);
-        console.log(`Expected Flashswap Cost ${((bakeryPaybackBUSDFee) / oneWei)}`);
-        console.log(`Estimated Gas Cost: ${((txCost) / oneWei)}`);
+        console.log(`Expected Flashswap Cost ${((bakeryPaybackBUSDFee) / oneWei)} USD`);
+        console.log(`Estimated Gas Cost: ${((txCost) / oneWei)} BNB`);
         console.log(`Expected profit: ${apeToBakeryWBNBProfit} WBNB`);
 
         // let slippage = Number(0.02) * wBNBAmount;
@@ -271,10 +240,12 @@ async function arbitrage(data) {
       }
       if (bakeryToApeBUSDProfit > 0 && bakeryToApeBUSDProfit > apeToBakeryBUSDProfit) {
         console.log("Arbitrage opportunity found!");
-        console.log(`Flashloan BUSD on Bakeryswap at ${((bakeryBUSDResults.buy) / oneWei)} `);
-        console.log(`Sell BUSD on ApeSwap at ${((apeBUSDResults.sell) / oneWei)} `);
-        console.log(`Expected Flashswap Cost ${((bakeryPaybackWBNBFee) / oneWei)}`);
-        console.log(`Estimated Gas Cost: ${((txCost) / oneWei)}`);
+        console.log(pad(colors.yellow('Current Time:'), 30),
+          moment().format('ll') + ' ' + moment().format('LTS'));
+        console.log(`Flashloan BUSD on Bakeryswap at ${((bakeryBUSDResults.buy) / oneWei)}`);
+        console.log(`Sell BUSD on ApeSwap at ${((apeBUSDResults.sell) / oneWei)}`);
+        console.log(`Expected Flashswap Cost ${((bakeryPaybackWBNBFee) / oneWei)} BNB`);
+        console.log(`Estimated Gas Cost: ${((txCost) / oneWei)} BNB`);
         console.log(`Expected profit: ${bakeryToApeBUSDProfit} BUSD`);
 
         // let slippage = Number(0.02) * bUSDAmount;
@@ -305,10 +276,12 @@ async function arbitrage(data) {
       }
       if (apeToBakeryBUSDProfit > 0 && apeToBakeryBUSDProfit > bakeryToApeBUSDProfit) {
         console.log("Arbitrage opportunity found!");
+        console.log(pad(colors.yellow('Current Time:'), 30),
+          moment().format('ll') + ' ' + moment().format('LTS'));
         console.log(`Flashloan BUSD on Apeswap at ${((apeBUSDResults.buy) / oneWei)} `);
         console.log(`Sell BUSD on Bakeryswap at ${((bakeryBUSDResults.sell) / oneWei)} `);
-        console.log(`Expected Flashswap Cost ${((bakeryPaybackWBNBFee) / oneWei)}`);
-        console.log(`Estimated Gas Cost: ${((txCost) / oneWei)}`);
+        console.log(`Expected Flashswap Cost ${((bakeryPaybackWBNBFee) / oneWei)} WBNB`);
+        console.log(`Estimated Gas Cost: ${((txCost) / oneWei)} BNB` );
         console.log(`Expected profit: ${apeToBakeryBUSDProfit} BUSD`);
 
         // let slippage = Number(0.02) * bUSDAmount;
