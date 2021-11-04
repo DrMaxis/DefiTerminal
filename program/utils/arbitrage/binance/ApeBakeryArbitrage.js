@@ -40,6 +40,7 @@ async function arbitrage(data) {
     factory: new web3.eth.Contract(mainnet.bakeryswap.factory.ABI, mainnet.bakeryswap.factory.address),
     router: new web3.eth.Contract(mainnet.bakeryswap.router.ABI, mainnet.bakeryswap.router.address),
   }
+
   const apeswap = {
     factory: new web3.eth.Contract(mainnet.apeswap.factory.ABI, mainnet.apeswap.factory.address),
     router: new web3.eth.Contract(mainnet.apeswap.router.ABI, mainnet.apeswap.router.address),
